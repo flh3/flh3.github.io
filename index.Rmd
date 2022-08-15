@@ -1,0 +1,50 @@
+---
+title: "MLM 2020"
+subtitle: ""
+author: "Francis L. Huang, PhD"
+date: "2019.04.16 (updated: `r Sys.Date()`)"
+output:
+  xaringan::moon_reader:
+    css: [footer-header.css, default, rutgers-fonts]
+    lib_dir: libs
+    seal: false
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+    
+---
+layout: true
+
+<div class="my-header"><span>Intro to Multilevel Models</span>
+</div>
+<div class="my-footer"><span>Francis Huang / huangf@missouri.edu    
+</span></div> 
+
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+```
+
+class: left, center
+## Hierarchical Linear Modeling (ESCP 9720)
+#### Fall 2021
+### Francis Huang, PhD. (huangf@missouri.edu)
+
+[01 Introduction](http://faculty.missouri.edu/huangf/MLM/01_intro.html)<BR>
+[02 Logic of Multilevel Models](http://faculty.missouri.edu/huangf/MLM/02_logicMLM.html)<BR>
+[03 MLM considerations](http://faculty.missouri.edu/huangf/MLM/03_centering.html)<BR>
+[04 Growth Modeling](http://faculty.missouri.edu/huangf/MLM/04_growth-models.html)<BR>
+[04a Reshaping](http://faculty.missouri.edu/huangf/MLM/04a_reshaping.html)<BR>
+[05 Assumptions and Diagnostics](http://faculty.missouri.edu/huangf/MLM/05_diagnostics.html)<BR>
+[06 Extensions: Three level models](http://faculty.missouri.edu/huangf/MLM/06_threeLevelModels.html)<BR>
+[06 Extensions: CCREM](http://faculty.missouri.edu/huangf/MLM/06a_CCREM.html)<BR>
+[07 Multiple imputation (Intro + Single level: mice): Pt 1](http://faculty.missouri.edu/huangf/MLM/01_missing.html)<BR>
+[07 Multiple imputation (Multilevel: jomo): Pt 2](http://faculty.missouri.edu/huangf/MLM/07_missingdata.html)<BR>
+[08 Alternatives to MLM](http://faculty.missouri.edu/huangf/MLM/01_alternatives-v2a.html)  <BR>
+[09 Multilevel Logistic Regression Models] DRAFT<BR>
+[Basic logistic regression](http://faculty.missouri.edu/huangf/MLM/11_logistic_notes2.html)<BR>
+[HGLM Intro](http://faculty.missouri.edu/huangf/MLM/10_logisticHLM.html)<BR>
+[HGLM Syntax](http://faculty.missouri.edu/huangf/MLM/logistic_notes.html)<BR>
+[Introduction to generalized estimation equations (GEEs)](http://faculty.missouri.edu/huangf/MLM/12_gees.html)<BR>
