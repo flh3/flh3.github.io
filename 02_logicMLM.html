@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Logic of multilevel models</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Francis L. Huang, PhD" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/rutgers-fonts.css" rel="stylesheet" />
+    <link rel="stylesheet" href="footer-header.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Logic of multilevel models
+### Francis L. Huang, PhD
+### 2019.04.16 (updated: 2021-08-30)
+
+---
+
+layout: true
+
+&lt;div class="my-header"&gt;&lt;span&gt;HSB &amp; RQs&lt;/span&gt;
+&lt;/div&gt;
+&lt;div class="my-footer"&gt;&lt;span&gt;Francis Huang / huangf@missouri.edu    
+&lt;/span&gt;&lt;/div&gt; 
+
+---
+
+
+
+class: center, middle
+
+## The High School and Beyond (HSB) dataset and Research Questions
+
+
+---
+
+## Classic example from Raudenbush &amp; Bryk (2002)
+
+
+```r
+library(mlmRev)
+data(Hsb82)
+hsb &lt;- Hsb82 #copy
+names(hsb) &lt;- tolower(names(hsb)) #make all lowercase
+head(hsb)
+```
+
+```
+##   school minrty     sx    ses   mach   meanses sector        cses
+## 1   1224     No Female -1.528  5.876 -0.434383 Public -1.09361702
+## 2   1224     No Female -0.588 19.708 -0.434383 Public -0.15361702
+## 3   1224     No   Male -0.528 20.349 -0.434383 Public -0.09361702
+## 4   1224     No   Male -0.668  8.781 -0.434383 Public -0.23361702
+## 5   1224     No   Male -0.158 17.898 -0.434383 Public  0.27638298
+## 6   1224     No   Male  0.022  4.583 -0.434383 Public  0.45638298
+```
+
+
+???
+```
+data(package='mlmRev')
+```
+
+
+---
+## HSB dataset
+
+- Subsample from the 1982 High School &amp; Beyond Survey
+- Data from 7,185 students from 160 schools:
+  + 90 public
+  + 70 Catholic
+- Around 45 students per school (i.e., 7,185 / 160)
+- Outcome: `\(Y_{ij}\)` is math achievement (`mach`)
+- One level-1 predictor, SES of an individual student.
+  + `ses` (socioeconomic status) 
+  + `cses` (group mean centered ses)
+- At level 2:
+  + `meanses` (average of student ses)
+  + `sector` (Public vs Catholic = 1) 
+  
+---
+
+## Raudenbush &amp; Bryk (2002, p. 69) and Singer (1998) ask several questions using the HSB dataset
+
+1. How much do U.S. high schools vary in their mean mathematics achievement?
+2. Do schools with high MEAN SES also have high math achievement?
+3. Is the strength of association between student SES and math achievement similar across schools? Or is SES a more important predictor of achievement in some schools than in others?
+4. How do public and Catholic schools compare in terms of mean math achievement and in terms of strength of the SES-math achievement relationship after we control for MEAN SES?
+
+---
+
+layout: true
+
+&lt;div class="my-header"&gt;&lt;span&gt;Understanding the ICC&lt;/span&gt;
+&lt;/div&gt;
+&lt;div class="my-footer"&gt;&lt;span&gt;Francis Huang / huangf@missouri.edu    
+&lt;/span&gt;&lt;/div&gt; 
+
+---
+
+## Q1. How much variability in math achievement is due to schools? 
+
+- Or generically, how much variability is due to the grouping variable?
+- Run a multilevel model with no predictors, only the grouping variable
+- A one-way random effects ANOVA
+
+`$$Level 1: Y_{ij} = \beta_{0j} + r_{ij}$$`
+
+`$$Level 2: \beta_{0j} = \gamma_{00} + u_{0j}$$`
+`$$Combined: Y_{ij} = \gamma_{00} + u_{0j} + r_{ij}$$`
+
+Now we have an equation for level 1 (student level) and level 2 (school level). We assume that: 
+- `\(r_{ij}\)` ~ N(0, `\(\sigma^2\)`): errors are normally distributed with a variance of `\(\sigma^2\)` (i.e., student-level variance) for  `\(i\)` individual in `\(j\)` school 
+- `\(u_{0j}\)` ~ N(0, `\(\tau_{00}\)`): `\(\tau_{00}\)` is school-level variance of the outcome
+
+`\(r_{ij}\)` and `\(u_{0j}\)` are referred to as *random effects*
+`\(\gamma_{00}\)` is referred to as the *fixed effect*
+
+
+---
+
+## Understanding variance partitioning: Example
+
+&lt;img src="img/uncm.jpg" width="500px" height="500px" /&gt;
+  
+---
+
+
+
+## Why run an unconditional model? What do we mean by partitioning the variance? 
+
+- A model with no predictors (a *null model*)
+- Decomposes the variance in the outcome *between* and **within* groups
+  + Indicates how much variance can be attributed between groups
+  + Results in an important statistic often used in multilevel modeling: The **Intraclass Correlation Coefficient** (or ICC or `\(\rho \rightarrow\)` 'rho')
+- Gives us baseline variance estimates
+- As basis of reference
+
+
+```r
+var(hsb$mach)
+```
+
+```
+## [1] 47.31026
+```
+- In regression, we try to explain the variance in Y by our predictors
+- NOTE: if we want to see how many clusters/groups are in the dataset
+
+
+```r
+length(table(hsb$school))
+```
+
+```
+## [1] 160
+```
+
+---
+
+## Running the unconditional (*null*) model
+
+Uses the `lmer` function: no predictors- just `(1|school)` which is the random part of the model where `1` refers to the intercept which is allowed to randomly vary by the grouping variable (in this case `school`)
+```
+nullm &lt;- lmer(mach ~ (1|school), data = hsb)
+summary(nullm)
+... omitted ...
+```
+
+```
+##  Groups   Name        Variance Std.Dev.
+*##  school   (Intercept)  8.614   2.935   
+*##  Residual             39.148   6.257   
+## Number of obs: 7185, groups:  school, 160
+## 
+## Fixed effects:
+##             Estimate Std. Error t value
+## (Intercept)  12.6370     0.2444   51.71
+```
+  - Look at the random effects
+    - Between groups: `\(\tau_{00} = \sigma^2_b = 8.614\)`
+    - Within group: `\(\sigma^2 = \sigma^2_w = 39.148\)`
+    - Total variance is `\(8.614 + 39.148 = 47.76\)` (similar to the variance shown previously)
+  - This is the amount of variability of the outcome attributable to the different levels
+
+---
+
+## NOTE: notation for the variance components may change by author
+
+The concept though of dividing or partitioning variance at different levels is the same:
+- For now, in the notes, I switch between `\(\sigma^2\)` because that commonly represents variance or `\(\tau\)` (because that is also commonly used)
+- If I use `\(\sigma\)`, I indicate between group variability and within group variability using the subscripts `\(b\)` or `\(w\)`, respectively
+- Others might represent:
+  + At level 2: between group variability for the random intercept using `\(\sigma^2_{u0}\)` or `\(\tau_{00}\)`
+  + At level 1: within group variability using different notation: `\(\sigma^2_{e}\)`,  `\(\sigma^2_{r}\)`, or simply  `\(\sigma^2\)`
+- I am showing different options because you will encounter this in different books and journals
+
+
+---
+
+## Intraclass correlation coefficient (ICC) shows the variability between groups
+
+`$$ICC (\rho) = \frac{\sigma^2_b}{\sigma^2_b + \sigma^2_w} = \frac{\tau_{00}}{\tau_{00} + \sigma^2} =  \frac{8.614}{8.614 + 39.148} = .18$$`
+- Knowing the computation of between and within is important- needed for pseudo `\(R^2\)` later on. 
+- **Understanding the basic formula is important!** Don't be satisfied with automatic computations, this is a basic concept that you should understand
+- Using a package:
+
+
+```r
+library(performance) #for icc function
+icc(nullm)
+```
+
+```
+## # Intraclass Correlation Coefficient
+## 
+##      Adjusted ICC: 0.180
+##   Conditional ICC: 0.180
+```
+
+---
+
+## Another way of getting the ICC- 
+
+```
+library(jtools) 
+summ(nullm) #results shortened
+```
+
+
+```
+## ------------------------------------
+##   Group      Parameter    Std. Dev. 
+## ---------- ------------- -----------
+##   school    (Intercept)     2.93    
+##  Residual                   6.26    
+## ------------------------------------
+## 
+## Grouping variables:
+## --------------------------
+##  Group    # groups   ICC  
+## -------- ---------- ------
+##  school     160      0.18 
+## --------------------------
+```
+NOTE: this shows the variance components in SDs (need to square to get the variance)
+---
+## Another way (easy; using a FE model): Adj `\(R^{2}\)` is close
+
+```
+hsb$school &lt;- factor(hsb$school, ordered = F) #weird-- it is
+an ordered factor, have to make it a regular factor for this to work
+null.ols &lt;- lm(mach ~ school, data = hsb)
+summary(null.ols) #results truncated
+```
+
+```
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)   4.5528     1.6721   2.723 0.006488 ** 
+## school8854   -0.3130     2.0047  -0.156 0.875934    
+## school4458    1.2586     1.9003   0.662 0.507795
+```
+
+```
+## ...
+```
+
+```
+## school9198   14.5395     2.0146   7.217 5.86e-13 ***
+## school9586   10.3109     1.8599   5.544 3.07e-08 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 6.256 on 7025 degrees of freedom
+## Multiple R-squared:  0.191,	Adjusted R-squared:  0.1727 
+## F-statistic: 10.43 on 159 and 7025 DF,  p-value: &lt; 2.2e-16
+```
+- Using `lm` only. ICC = ~ .17. Conceptually makes sense, amount of variability due to the school factor
+- A good approximation
+
+---
+
+## Another function to extract the variance/sd of the residuals
+
+
+```r
+vc &lt;- VarCorr(nullm)
+vc
+```
+
+```
+##  Groups   Name        Std.Dev.
+##  school   (Intercept) 2.9350  
+##  Residual             6.2569
+```
+
+```r
+print(vc, comp = c("Variance")) #have to request this
+```
+
+```
+##  Groups   Name        Variance
+##  school   (Intercept)  8.614  
+##  Residual             39.148
+```
+
+---
+
+## Understanding ICC ...
+
+- All units within cluster are the same (let's say we are looking at heights of kids)
+- Variance is totally _between_ clusters
+&lt;P&gt;
+&lt;img src="img/bgroup.png" width="100%" /&gt;
+--
+
+&lt;P&gt;
+- The within cluster variance is zero (as they are all the same)
+- **The ICC then is 1**
+  $$ICC = \frac{\sigma^2_b}{\sigma^2_b + \sigma^2_w} =
+\frac{1}{1 + 0} = 1 $$
+
+---
+
+## Understanding ICC ... (cont.)
+
+- All clusters are the same
+- Variance is totally _within_ clusters
+&lt;P&gt;
+&lt;img src="img/wgroup.png" width="100%" /&gt;
+--
+
+&lt;P&gt;
+- The between cluster variance is zero 
+- **The ICC then is 0**
+  $$ICC = \frac{\sigma^2_b}{\sigma^2_b + \sigma^2_w} =
+\frac{0}{0 + 1} = 0 $$
+
+---
+
+## What is the issue with ICC &gt; 0?
+
+- Increased Type I error rates (esp. for higher level variable) if ignored (Barcikowski, 1981; Huang, 2016)
+- Sample size is actually smaller than reported 
+- Effective sample size is (see McCoach &amp; Adelson, 2010):
+`$$N_{EFF} = \frac{N_{total}}{1 + \rho(m - 1)} = \frac{N_{total}}{DEFF}$$`
+  + where `\(N_{total}\)` is the observed overall sample size and `\(m\)` is the number of observations in each cluster (can take the average or harmonic mean)
+  + Denominator is referred to as the design effect (DEFF); more in succeeding classes
+  
+???
+  
+  What Is an Intracluster Correlation Coefficient? Crucial Concepts for Primary Care Researchers
+Shersten Killip, MD, MPH,1 Ziyad Mahfoud, PhD,2 and Kevin Pearce, MD, MPH1
+
+(Barcikowski, 1981)
+
+---
+
+
+## For the fixed effect (from previous output)
+
+
+```
+## Fixed effects:
+##             Estimate Std. Error t value
+*## (Intercept)  12.6370     0.2444   51.71
+```
+
+- The estimate for `\(\hat{\gamma}_{00}\)` = 12.64
+- Is different from zero (t = 51.71): note no p value given
+- This has a s.e. of .24 and has a 95% confidence interval:
+  + 12.64 `\(\pm\)` 1.96(.24) = (12.17, 13.11)
+- Refers to the grand mean
+
+
+```r
+mean(hsb$mach)
+```
+
+```
+## [1] 12.74785
+```
+---
+
+## The population of school means is normally distributed around `\(\gamma_{00}\)` with variance `\(\tau_{00}\)`
+
+- See RB (p. 71)
+  
+  `$$Var(\beta_{0j}) = Var(\tau_{00}) = 8.61$$`
+
+- Plausible values: 
+`$$\gamma_{00} \pm 1.96(\tau_{00})^{\frac{1}{2}}$$`
+Note: `\((\tau_{00})^{\frac{1}{2}}\)` refers to getting the square root of the variance `\(\sqrt{\tau_{00}}\)` which in this case of 2.93 (sqrt of 8.61)
+$$\gamma_{00} \pm 1.96(2.93) = 12.64 \pm 2.93 = (6.89, 18.38) $$
+- Quite a substantial range!
+
+???
+
+Computing this manually 
+
+
+```r
+library(dplyr)
+tmp &lt;- hsb %&gt;% group_by(school) %&gt;%
+  summarise(ms = mean(mach))
+quantile(tmp$ms, c(.025, .975))
+```
+
+```
+##      2.5%     97.5% 
+##  5.972658 18.448112
+```
+
+```r
+sd(tmp$ms)
+```
+
+```
+## [1] 3.117651
+```
+
+---
+layout: true
+
+&lt;div class="my-header"&gt;&lt;span&gt;Means as outcomes&lt;/span&gt;
+&lt;/div&gt;
+&lt;div class="my-footer"&gt;&lt;span&gt;Francis Huang / huangf@missouri.edu    
+&lt;/span&gt;&lt;/div&gt; 
+
+---
+
+## Q2: Do schools with high MEAN SES also have high math achievement?
+
+Need to get the average SES per school (a level 2 or contextual predictor)
+- how to compute this is shown too (though it is already computed in the dataset)
+- we might compute the mean and then merge this back to the dataset
+- we often might compute these aggregates so this is very helpful
+
+
+```r
+head(hsb) #meanses is shown which is the average of ses
+```
+
+```
+##   school minrty     sx    ses   mach   meanses sector        cses
+## 1   1224     No Female -1.528  5.876 -0.434383 Public -1.09361702
+## 2   1224     No Female -0.588 19.708 -0.434383 Public -0.15361702
+## 3   1224     No   Male -0.528 20.349 -0.434383 Public -0.09361702
+## 4   1224     No   Male -0.668  8.781 -0.434383 Public -0.23361702
+## 5   1224     No   Male -0.158 17.898 -0.434383 Public  0.27638298
+## 6   1224     No   Male  0.022  4.583 -0.434383 Public  0.45638298
+```
+---
+
+## How to aggregate data by group (school) and merge it with the original data
+
+
+```r
+library(dplyr)
+meandata &lt;- hsb %&gt;% group_by(school) %&gt;%
+  summarise(meanses2 = mean(ses))
+# aggregate(mach ~ school, hsb, mean) #base R
+hsb &lt;- merge(hsb, meandata, by = 'school')
+select(hsb, school, ses, meanses, meanses2) %&gt;% psych::headTail()
+```
+
+```
+##      school   ses meanses meanses2
+## 1      1224 -1.53   -0.43    -0.43
+## 2      1224 -0.59   -0.43    -0.43
+## 3      1224 -0.53   -0.43    -0.43
+## 4      1224 -0.67   -0.43    -0.43
+## ...    &lt;NA&gt;   ...     ...      ...
+## 7182   9586 -0.04    0.62     0.62
+## 7183   9586  1.33    0.62     0.62
+## 7184   9586 -0.01    0.62     0.62
+## 7185   9586  0.79    0.62     0.62
+```
+
+---
+
+## Another option, without having to create and merge a dataset
+
+
+```r
+hsb$meanses3 &lt;- ave(hsb$ses, hsb$school, FUN = mean)
+select(hsb, school, ses, meanses, meanses2, meanses3) %&gt;%
+  psych::headTail()
+```
+
+```
+##      school   ses meanses meanses2 meanses3
+## 1      1224 -1.53   -0.43    -0.43    -0.43
+## 2      1224 -0.59   -0.43    -0.43    -0.43
+## 3      1224 -0.53   -0.43    -0.43    -0.43
+## 4      1224 -0.67   -0.43    -0.43    -0.43
+## ...    &lt;NA&gt;   ...     ...      ...      ...
+## 7182   9586 -0.04    0.62     0.62     0.62
+## 7183   9586  1.33    0.62     0.62     0.62
+## 7184   9586 -0.01    0.62     0.62     0.62
+## 7185   9586  0.79    0.62     0.62     0.62
+```
+
+- Very convenient function!
+- See `?ave` documention:
+  + `ave(variable, group, FUN = function to use)`
+  
+---
+
+
+## We add a level 2 predictor, `\(W_{j}\)`
+
+`$$Level 1: Y_{ij} = \beta_{0j} + r_{ij}$$`
+`$$Level 2: \beta_{0j} = \gamma_{00} + \gamma_{01}W_{j} + u_{0j} = \gamma_{00} + \gamma_{01}MEANSES_{j} + u_{0j}$$`
+`$$Combined: Y_{ij} = \gamma_{00} + \gamma_{01}MEANSES +u_{0j} + r_{ij}$$`
+
+```
+m1 &lt;- lmer(mach ~ meanses + (1|school), data = hsb)
+summary(m1)
+```
+
+```
+## Random effects:
+##  Groups   Name        Variance Std.Dev.
+*##  school   (Intercept)  2.639   1.624   
+*##  Residual             39.157   6.258   
+## Number of obs: 7185, groups:  school, 160
+## 
+## Fixed effects:
+##             Estimate Std. Error t value
+## (Intercept)  12.6846     0.1493   84.97
+## meanses       5.8635     0.3615   16.22
+```
+
+---
+
+## The residual variance is now a *conditional* residual variance 
+
+- Conditional on *MEANSES*
+- The residual variance now between schools `\(\tau_{00}\)` = 2.64 is much smaller than it was in the null model, `\(\tau_{00} = 8.61\)`
+- The range of plausible values of schools means, conditional on MEANSES, is:
+`$$\gamma_{00} \pm 1.96(\tau_{00})^{1/2} = 12.65 \pm 1.96(2.64)^{1/2} = (9.47, 15.83)$$`
+- The range of plausible values is now smaller than it was originally (i.e., 6.89, 18.39)
+
+---
+
+## Auxilliary statistic: Pseudo R&lt;sup&gt;2&lt;/sup&gt; for L2
+
+By comparing the reduction in residual variance from the null model (8.61) to the full model (2.64), we can estimate how much variability has been reduced at the second level:
+ `$$[\tau_{00}(NULL) - \tau_{00}(FULL) ] /  \tau_{00}(NULL)$$` 
+ `$$(8.61 - 2.64) / 8.61 = .69$$` 
+- In other words, 69% of the between school variance in math achievement is accounted for by MEAN SES- referred to as a *pseudo `\(R^{2}\)`*
+- Seems large but originally, schools accounted for 18% of the variance. We now explain 69% of that 18%. 
+- We now can look at the *conditional ICC* using the same ICC formula:
+`\(2.64 / (2.64 + 39.16) = .06\)`
+- From .18, the conditional ICC is now .06
+
+.footnote[
+Sometimes  variance increases, rather than decreases at a particular level resulting in a negative `\(R^2\)`!
+]
+---
+
+## Another way of computing the Pseudo R&lt;sup&gt;2&lt;/sup&gt; for L2
+
+- Another way suggested by Snijders and Bosker (1999)
+- See Luke (2004, p. 36) as well
+- The level 2 residual variance is (part of L2 variance includes some variance from L1):
+`$$var(residuals)_2 = \frac{\sigma^2}{n} + \tau_{00}$$`
+- So, the level 2 Pseudo R&lt;sup&gt;2&lt;/sup&gt; can be computed as
+
+`$$R_2^2  = 1 - \frac{(\frac{\sigma^2}{n} + \tau_{00})_{FULL}}{(\frac{\sigma^2}{n} + \tau_{00})_{BASELINE}}$$`
+.footnote[In this case, `\(n\)` is the average cluster size of 7185 / 160 = 44.90. In unbalanced cases, use the *harmonic mean*]
+
+---
+
+
+## Another way of computing the Pseudo R&lt;sup&gt;2&lt;/sup&gt; for L2(cont.)
+
+- In this case, `\(n\)` is the average number of units per cluster: in case of unbalanced groups, can use the harmonic means- more in a future lecture
+
+`$$R_2^2 = 1 - \frac{(39.16/44.91) + 2.64 }{(39.15 / 44.91) + 8.61}$$`
+`$$= 1 - \frac{(.87 + 2.64)}{(.87 + 8.61)}$$`
+`$$=1 - (3.51 / 9.48)$$`
+`$$= .63$$`
+.footnote[Recommended when estimated using ML rather than REML.]
+
+---
+
+## What about the Pseudo R&lt;sup&gt;2&lt;/sup&gt; for L1?
+
+- See Luke, p. 36, eq. 2.13
+- Even if we add a variable only at level 2, can see how this affects variance at L1
+- Total variance = `\(\sigma\)` + `\(\tau_{00}\)`
+`$$R^2_1 = 1 - \frac{(\sigma^2 + \tau_{00})_{FULL}}{(\sigma^2 + \tau_{00})_{BASELINE}}$$` 
+`$$= 1 - (39.16 + 2.64)/(39.15 + 8.61)$$`
+`$$= 1 - (41.8 / 47.76)$$`
+`$$=.12$$`
+.footnote[
+No accepted standard for `\(R^2\)`. see [LaHuis, Hartman, Hakoyama, &amp; Clark, 2014](https://journals.sagepub.com/doi/10.1177/1094428114541701).
+]
+---
+
+## What about the fixed effect estimate of MEANSES?
+
+
+```
+## Fixed effects:
+##             Estimate Std. Error t value
+## (Intercept)  12.6846     0.1493   84.97
+*## meanses       5.8635     0.3615   16.22
+```
+- The t value (Est / SE) is high (&gt; ~ 2.0) and suggests that meanses is statistically significant. 
+- *p* values are not shown-- neither are the degrees of freedom. Author of `lme4` (Douglas Bates) has discussed this [before](https://stat.ethz.ch/pipermail/r-help/2006-May/094765.html) 
+- Several options though: the most convenient is probably to install another package called `lmerTest`: this replaces the `lmer` function in the `lme4` package and adds a *p* value and *df* in the summary output-- you get the same output and is the same function except you now see the *p* values (in this case, *p* &lt; .001)
+
+```
+library(lmerTest)
+m1a &lt;- lmer(mach ~ meanses + (1|school), data = hsb)
+summary(m1a)
+```
+
+```
+##             Estimate Std. Error       df t value Pr(&gt;|t|)    
+*## (Intercept)  12.6846     0.1493 153.7038   84.97   &lt;2e-16 ***
+*## meanses       5.8635     0.3615 153.4104   16.22   &lt;2e-16 ***
+## ---
+```
+
+---
+
+## Interpreting the effect of MEANSES 
+
+
+```
+##             Estimate Std. Error       df t value Pr(&gt;|t|)    
+## (Intercept)  12.6846     0.1493 153.7038   84.97   &lt;2e-16 ***
+## meanses       5.8635     0.3615 153.4104   16.22   &lt;2e-16 ***
+## ---
+```
+For every one point increase in MEANSES, math achievement increases by 5.86 points, *p* &lt; .001
+- SES at the school level is positively related to mathematics achievement 
+- Notice the degrees of freedom is ~153. [read manual for adjustments made] though keep in mind, this is much lower than if you were to use OLS where this would be n - k - 1 which would be &gt; 7,000 (in this case, does not make much of a difference: 1.98 vs 1.96 critical value). Makes a bigger difference if you have a small number of clusters (e.g., 20)
+- You can interpret `\(\gamma_{00}\)` as well but may not be of interest- i.e., the grand mean is not null: `$$H_{0}: \gamma_{00} = 0$$`
+
+---
+
+## On computing p-values and degrees of freedom (dof)
+
+- Remember, that the *t* statistic is based on the estimate divided by its standard error
+- It is also important to take into account the dof computation: some software use 1.96 as the critical value which is based on the normal distribution (assumes large samples)
+- Software such as HLM compute dof using a *t*-distribution. Based on Snijders and Bosker (ch. 6): 
+    + M = total number of level 1 units
+    + N = number of level 2 units
+    + r = total number of predictors
+    + q = predictors at level 2
++ For L1 vars: M - r - 1
++ For L2 vars: N - q - 1
++ For cross-level interaction: Also N - q - 1
++ Others (for L1): M - N - lev1pred
++ Other ways of computing dof (e.g., Satterthwaite, Kenward-Roger): have an impact with a low number of clusters
+  + Can be non-integers
+
+---
+
+
+layout: true
+
+&lt;div class="my-header"&gt;&lt;span&gt;Random Coefficient Models&lt;/span&gt;
+&lt;/div&gt;
+&lt;div class="my-footer"&gt;&lt;span&gt;Francis Huang / huangf@missouri.edu    
+&lt;/span&gt;&lt;/div&gt; 
+
+---
+### Q3: Is the strength of association between student SES and math achievement similar across schools? Or is SES a more important predictor of achievement in some schools than in others?
+
+- For this question, we are just looking at a predictor at level 1, `ses`. For this case, we can use a centered value of SES.
+- There is a lot of discussion on centering as well as several articles on the topic. 
+- The whole concept of centering is interesting and can be done for a variety of reasons!
+- For now, I will follow the example of RB and Singer in their articles of using the group centered SES variable. I will discuss centering more in depth in a later class.
+- Centering is often disussed in MLM through we've done this as well with plain old OLS!&lt;sup&gt;1&lt;/sup&gt;
+
+.footnote[&lt;sup&gt;1&lt;/sup&gt;Huang, F. (2018). Multilevel modeling and ordinary least squares regression:  How comparable are they? 	*Journal of Experimental Education, 86*, 265-281. https://doi.org/10.1080/00220973.2016.1277339]
+---
+
+## For now, know that there are two general forms of centering
+
+- There are two general forms of centering for level 1 variables:
+  + Grand mean centering (original variable - overall or grand mean; `\(X_{ij} - \bar{X}_{..}\)`)
+  + Group mean centering (original variable - group mean of the variable; `\(X_{ij} - \bar{X}_{.j}\)`): also referred to as *centering within context (CWC)*
+- Enders and Tofighi (2007) have a nice paper on this
+- I want to have a longer discussion and how this relates to what are referred to as fixed effects models
+
+.footnote[
+Enders, C. K., &amp; Tofighi, D. (2007). Centering predictor variables in cross-sectional multilevel models: A new look at an old issue. *Psychological Methods, 12,* 121-138. https://doi.org/10.1037/1082-989X.12.2.121
+
+]
+  
+---
+
+## Adding a level 1 predictor
+
+We want to see how ses is related to math achievement (one of the most commonly used and powerful predictors; see Sirin, 2005). 
+
+Level 1: `$$Y_{ij} = \beta_{0j} + \beta_{1j}(ses_{ij} - \bar{ses.j}) + r_{ij}$$`
+
+```r
+mean(hsb$cses) %&gt;% round(., 3)
+```
+
+```
+## [1] 0
+```
+
+```r
+range(hsb$cses) #fyi
+```
+
+```
+## [1] -3.650741  2.856078
+```
+
+```r
+#hsb$cses &lt;- hsb$ses - hsb$meanses if you had to create a group centered variable
+```
+
+.footnote[Sirin, S. R. (2005). Socioeconomic status and academic achievement: A meta-analytic review of research. *Review of Educational Research, 75,* 417-453. https://doi.org/10.3102/00346543075003417
+]
+---
+
+## At level 2
+
+We just use (no predictors):
+.center[
+`\(\beta_{0j} = \gamma_{00} + u_{0j}\)` and 
+`\(\beta_{1j} = \gamma_{10}\)`
+]
+
+The combined model, substituting the level 2 equation into the level 1 equation, is now:
+Level 1: `$$Y_{ij} = \beta_{0j} + \beta_{1j}(ses_{ij} - \bar{ses.j}) + r_{ij}$$`
+`$$Y_{ij} = \gamma_{00} + \gamma_{10}(ses_{ij} - \bar{ses.j}) + u_{0j} + r_{ij}$$`
+- The equation means that each school can get its own intercept (allowed to randomly vary; which is why this is referred to as a *random intercept* model)
+- The coefficient of `\(\gamma_{10}\)` is referred to as *fixed* since it is not allowed to randomly vary- there is no random term associated with it (no `\(u\)`)
+  + means that the relationship of SES is constant among the different schools
+---
+
+## To run the model
+
+Just include the predictor  
+
+```
+m2 &lt;- lmer(mach ~ cses + (1|school), data = hsb)
+summ(m2, re.variance = 'var', digits = 3) #using jtools, just showing another way
+```
+
+
+```
+##                       Est.    S.E.   t val.       d.f.       p
+## ----------------- -------- ------- -------- ---------- -------
+## (Intercept)         12.636   0.244   51.684    156.741   0.000
+## cses                 2.191   0.109   20.166   7022.024   0.000
+## --------------------------------------------------------------
+## 
+## p values calculated using Satterthwaite d.f.
+## 
+## RANDOM EFFECTS:
+## ---------------------------------
+##   Group      Parameter     Var.  
+## ---------- ------------- --------
+##   school    (Intercept)   8.672  
+##  Residual                 37.010
+```
+- Average math achievement for all students is 12.64
+- Indicates that for every one point increase in SES, math achievement increases by 2.191 points (p &lt; .001)
+- Notice that residual variance is now 37.01, down from 39.15 in the null model
+
+---
+
+## NOTE: MLM is not just one type of model, it is a family of models
+
+.pull-left[
+A regular OLS model with Y ~ X
+- One intercept and one slope: You are used to seeing this
+![](02_logicMLM_files/figure-html/unnamed-chunk-24-1.png)&lt;!-- --&gt;
+]
+
+.pull-right[
+A random intercept model
+- One slope but the intercept is allowed to randomly vary
+![](02_logicMLM_files/figure-html/unnamed-chunk-25-1.png)&lt;!-- --&gt;
+]
+
+---
+
+## Can compute another pseudo R&lt;sup&gt;2&lt;/sup&gt; for level 1
+
+Use the similar formula earlier:
+- Pseudo R&lt;sup&gt;2&lt;/sup&gt;: `\((var_{null} - var_{full}) / var_{null})\)` 
+- (39.15 - 37.01) / 39.15 = .054
+- Quantifying how much the residual variance at level 1 decreased AFTER the `ses` variable was introduced
+- Can say that 5% of the variability in math can be accounted for by SES. 
+- However, this does not assume that the effect of ses may differ depending on the school (which was our research question)
+
+---
+
+### Graphically, this assumes that the effect of ses is constant for each school
+
+- This is what we assume when we have a random intercept model
+- In contrast, the slopes can also randomly vary (vs being fixed)
+  + if slopes randomly vary the 'effect' of ses can change per school
+.pull-left[
+  A random intercept model
+  - One slope but the intercept is allowed to randomly vary
+  ![](02_logicMLM_files/figure-html/unnamed-chunk-26-1.png)&lt;!-- --&gt;
+]
+.pull-right[
+  A random slope model
+  - Slopes and intercepts are allowed to randomly vary
+  ![](02_logicMLM_files/figure-html/unnamed-chunk-27-1.png)&lt;!-- --&gt;
+]
+
+---
+
+## The random coefficient model
+
+The level 2 formula now changes for `\(\beta_{1j}\)` 
+.center[
+`\(\beta_{0j} = \gamma_{00} + u_{0j}\)` and 
+`\(\beta_{1j} = \gamma_{10} + \mathbf{u_{ij}}\)`
+]
+
+The combined model, substituting the level 2 equation into the level 1 equation, is now:
+`$$Y_{ij} = \beta_{0j} + \beta_{1j}(ses_{ij} - \bar{ses.j}) + r_{ij}$$`
+`$$Y_{ij} = \gamma_{00} + \gamma_{10}(ses_{ij} - \bar{ses.j}) + u_{0j} + \mathbf{u_{1j}(ses_{ij} - \bar{ses_{.j}})} + r_{ij}$$`
+- Now, not only the intercept, `\(\beta_{0j}\)`, is allowed to vary, but the slope as well `\(\beta_{1j}\)`
+- Each school now has its own slope and intercept
+
+---
+
+## With a random coefficient model, the level 2 variance components are a little more complicated
+
+`$$Var(u_{0j}) = \tau_{00}$$`
+`$$Var(u_{1j}) = \tau_{11}$$`
+and the covariance between them, `\(Cov(u_{0j}, u_{1j}) = \tau_{01} = \tau_{10}\)`
+
+`\(\tau_{01} = \tau_{10}\)` show the covariance between the intercept and the slope. If standardized, this is the correlation. 
+
+This results in a variance covariance matrix of the variance components:
+
+`$$Var =
+\begin{bmatrix}u_{0j} \\
+u_{1j}
+\end{bmatrix} = \begin{bmatrix}
+\tau_{00} &amp; \tau_{10} \\
+\tau_{01} &amp; \tau_{11}
+\end{bmatrix} = T$$`
+
+Referred to as **T** in RB (2002, p. 76). Also referred to in some programs as the **G** matrix.
+- Gets bigger with each additional random effect added
+
+---
+
+### To run the random coefficient model
+
+Specify that the slopes for `ses` can be allowed to vary
+
+```
+m3 &lt;- lmer(mach ~ cses + (cses|school), data = hsb)
+summary(m3)
+```
+
+
+```
+##  Groups   Name        Variance Std.Dev. Corr
+##  school   (Intercept)  8.681   2.9464       
+##           cses         0.694   0.8331   0.02
+##  Residual             36.700   6.0581       
+## Number of obs: 7185, groups:  school, 160
+## 
+## Fixed effects:
+##             Estimate Std. Error       df t value Pr(&gt;|t|)    
+## (Intercept)  12.6362     0.2445 156.7512   51.68   &lt;2e-16 ***
+## cses          2.1932     0.1283 155.2166   17.10   &lt;2e-16 ***
+```
+
+`$$T = \begin{bmatrix}
+8.68 &amp; .05 \\
+.05 &amp; .69
+\end{bmatrix}$$`
+
+- NOTE: `\(r = \frac{cov}{sd(x)sd(y)} \rightarrow .02 = \frac{cov}{sqrt(8.681) sqrt(.694)}\)`
+
+- `\(cov = .02 \times 2.95 \times .83 = .049\)`
+
+???
+
+The .02 means that there is little association between school means and the SES effects
+
+---
+
+
+### In our ses example, there was some slope variability (.69)
+
+NOTE: there are no significance tests provided by default to tell users whether this is different from zero or not (or if it is negligible or not): is it 'worth it'?
+- Turns out the two models are nested (the model without the random slope and the model WITH the random slope)
+- Can be tested using a likelihood ratio test with 2 degrees of freedom (since the additional `\(\tau_{11}\)` AND `\(\tau_{01}\)` were added)
+
+
+```r
+anova(m2, m3)
+```
+
+```
+## refitting model(s) with ML (instead of REML)
+```
+
+```
+## Data: hsb
+## Models:
+## m2: mach ~ cses + (1 | school)
+## m3: mach ~ cses + (cses | school)
+##    npar   AIC   BIC logLik deviance Chisq Df Pr(&gt;Chisq)   
+## m2    4 46728 46756 -23360    46720                       
+## m3    6 46723 46764 -23356    46711 9.433  2   0.008946 **
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+Results indicate that the addition of the random slope improved the model beyond what could be expected by chance alone (*p* = .009).
+
+---
+
+## Understand the process for model comparison
+
+```
+## m2: mach ~ cses + (1 | school)
+## m3: mach ~ cses + (cses | school)
+##    Df   AIC   BIC logLik deviance Chisq Chi Df Pr(&gt;Chisq)   
+## m2  4 46728 46756 -23360    46720                           
+## m3  6 46723 46764 -23356    46711 9.433      2   0.008946 **
+```
+
+- Take two models: one nested within the other. 
+  + in this case, the difference is one has the random slope (and the covariance of interecept and slope) vs. without both 
+- The deviance is compared: the difference is the -2 `\(\times\)` loglikelihood (-2LL)
+
+
+```r
+-2 * logLik(m2) #will not be the same as m2 was estimated using REML
+```
+
+```
+## 'log Lik.' 46724 (df=4)
+```
+
+```r
+m2ML &lt;- lmer(mach ~ cses + (1|school), data = hsb, REML = F) #for ML
+-2 * logLik(m2ML) #this is the same as in the table
+```
+
+```
+## 'log Lik.' 46720.41 (df=4)
+```
+Compared to a `\(\chi^2\)` distribution with 2 df in this case **[NOTE: this is the logic used in pp. 83-84 RB (2002)]**
+
+
+???
+
+library(nlme)
+ols &lt;- glm(mach ~ cses, data = hsb)
+o1 &lt;- gls(mach ~ cses, data = hsb, method = 'ML' )
+o2 &lt;- lme(mach ~ cses, random = ~1|school, data = hsb, method = 'ML')
+
+anova(o1, o2)
+
+summary(ols)
+summary(o1)
+-2 * logLik(ols) - -2 * logLik(o2)
+
+---
+
+## Understand the process for model comparison (cont.)
+
+- NOTE: we are interested in `\(\tau_{11}\)` which is a measure of variance
+- Variance cannot be less than zero- so usual two tailed tests should not apply
+- Instead, a 50:50 mixture `\(\chi^2\)` distribution should be used (Hox et al., 2018) because we are testing if either the covariance between the intercept and slope `\(\tau_{10}=0\)` and slope variance `\(\tau_{11} = 0\)` 
+&gt; When the chi-square difference test is used to test a variance component, it should be noted that the standard application leads to a p-value that is too high [too conservative]. The reason is that the null-hypothesis of zero variance is on the boundary of the parameter space (all possible parameter values) since variance cannot be negative (Hox et al., p. 37)
+
+- With 2 df, the `\(\chi^2_{crit} = 5.991\)`; with a 50:50 `\(\chi^2\)` distribution, the critical value is 5.14 (so if &gt; 5.14, p &lt; .05)
+- In this case, not much difference
+- If only the slope variance is added (and not the covariance; there is a way to specify this); then the p value of the original test can just be divided by 2
+---
+
+
+## SIDENOTE #1: using information criterion measures
+
+- Some researchers may use Akaike's information criterion (AIC) and the Bayesian information criterion (BIC) for selecting the best model (can be used for non nested models)
+  + Smaller values are better
+  + Versions for small samples as well
+  + See guidelines (Raftery, 1995, Table 6, p. 139)
+- However, for some reason, folks do not acknowledge that these may not actually perform well
+- In a criticism of Raftery's paper, [Gelman and Hill](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.42.198&amp;rep=rep1&amp;type=pdf ) (1995) write that the BIC is *"directed off-target and only by serendipity manage to hit the target in special circumstances."*
+  + Several others have indicated this as well (Ferron et al., 2002; Keselman, Algina, Kowalchuk, &amp; Wolfinger, 1998; Vallejo et al., 2008)
+- Experience working with others and reading articles suggests (to me) that researchers choose those measures which support their  hypothesis
+  + Unlike CFA/SEM which use descriptive measures of fit, various fit indices should 'point' to the right direction
+  + With AIC/BIC, if one contradicts the other, some other excuse can be made why one is used but not the other
+  
+---
+
+## So what is the big deal though about including the random coefficient?
+
+- What does it mean that the model is better? What gets affected?
+  + the RI model slope for SES = 2.19 (.109) `\(\rightarrow\)` t = 20.09
+  + the RC model slope for SES = 2.19 (.128) `\(\rightarrow\)` t = 17.10 
+- The point estimated (2.19) is the same!
+- The standard error gets affected [in this case, there is no practical difference]
+- Underestimated when RI is used only- can make a difference in other cases [if your variable of interest is at level 1]
+- Are there other fixes? Yes, there are (Huang &amp; Wiedermann, under review)
+- What if we compute the Pseudo R&lt;sup&gt;2&lt;/sup&gt; again: `\((var_{null} - var_{full}) / var_{null})\)` 
+  + (39.15 - 36.70) / 36.70 = .063 [better]
+
+---
+
+## Another way to think about this is you ran an OLS model per school (160 of them)
+
+Here's an example using just three schools (8367, 9586, 5762 are the school ids):
+
+
+```r
+ols1 &lt;- lm(mach ~ cses, data = subset(hsb, school == '8367'))
+ols2 &lt;- lm(mach ~ cses, data = subset(hsb, school == '9586'))
+ols3 &lt;- lm(mach ~ cses, data = subset(hsb, school == '5762'))
+rbind(coef(ols1), coef(ols2), coef(ols3))
+```
+
+```
+##      (Intercept)       cses
+## [1,]    4.552786  0.2503748
+## [2,]   14.863695  1.6720812
+## [3,]    4.324865 -1.0140992
+```
+We do notice, just using these three schools, that there is some variation between the intercepts (average math achievement) and the slopes (one is positive, one is negative, one is near zero)
+- NOTE: this is NOT how an MLM is estimated exactly, just showing as an example
+
+---
+
+## Of course we could also do this using a function
+
+Run a regression for every single school and save the results:
+
+
+```r
+library(dplyr) #for the %&gt;%
+fits &lt;- lmList(mach ~ cses | school, data=hsb) #in lme4
+coef(fits) %&gt;% psych::headTail()
+```
+
+```
+##      X.Intercept.  cses
+## 8367         4.55  0.25
+## 8854         4.24  1.94
+## 4458         5.81  1.13
+## 5762         4.32 -1.01
+## ...           ...   ...
+## 8627        10.88  1.87
+## 8628        16.53  1.23
+## 9198        19.09  2.61
+## 9586        14.86  1.67
+```
+
+```r
+coef(fits) %&gt;% colMeans() #means of intercept and slope
+```
+
+```
+## (Intercept)        cses 
+##   12.620755    2.201641
+```
+
+```r
+#apply(coef(fits), 2, range)
+```
+
+
+---
+
+## What if we plot this? We can see the variation better
+
+
+```r
+library(ggplot2)
+ggplot(hsb) + aes(x = cses, y = mach, group = school) +
+  geom_smooth(method = 'lm', se = F, lwd = .5) + theme_bw()
+```
+
+![](02_logicMLM_files/figure-html/unnamed-chunk-33-1.png)&lt;!-- --&gt;
+
+---
+
+layout: true
+
+&lt;div class="my-header"&gt;&lt;span&gt;Intercept and slopes as outcomes&lt;/span&gt;
+&lt;/div&gt;
+&lt;div class="my-footer"&gt;&lt;span&gt;Francis Huang / huangf@missouri.edu    
+&lt;/span&gt;&lt;/div&gt; 
+
+---
+
+### Q4: How do public and Catholic schools compare in terms of mean math achievement and in terms of the strength of the SES-math achievement relationship after we control for MEAN SES?
+
+Now we have two level-2 predictors
+
+`$$Level 1: Y_{ij} = \beta_{0j} + \beta_{1j}CSES^{*} + r_{ij}$$`
+`$$Level 2: \beta_{0j} = \gamma_{00} + \gamma_{01}MEANSES_{j} + \gamma_{02}SECTOR_{j} + u_{0j}$$`
+`$$Level 2: \beta_{1j} = \gamma_{10} + \gamma_{11}MEANSES_{j} + \gamma_{12}SECTOR_{j} + u_{1j}$$`
+Combined model:
+
+`$$Y_{ij} = \gamma_{00} + \gamma_{01}MEANSES_{j} + \gamma_{02}SECTOR_{j} + \gamma_{10}CSES +$$`
+`$$\gamma_{11}MEANSES_{j}CSES + \gamma_{12}SECTOR_{j}CSES +$$`
+`$$u_{0j} + u_{1j}CSES + r_{ij}$$`
+
+.footnote[
+In our model, we now have cross-level interactions&lt;br&gt;
+&lt;sup&gt;*&lt;/sup&gt; To keep things simple, this is just SES less the group mean. Not showing it in the equation.
+]
+
+---
+
+### SIDENOTE #2: A word about notation (see Ch. 2, Luke)
+
+
+`$$Level 1: Y_{ij} = \beta_{0j} + \beta_{1j}X_{ij} + r_{ij}$$`
+`$$Level 2: \beta_{0j} = \gamma_{00} + \gamma_{01}W_{j} + u_{0j}$$`
+`$$Level 2: \beta_{1j} = \gamma_{10} + \gamma_{11}W_{j} + u_{1j}$$`
+Combined model:
+
+`$$Y_{ij} = \gamma_{00} + \gamma_{01}W_{j} +  \gamma_{10}X_{ij} + \gamma_{11}W_{j}X_{ij} + u_{0j} + u_{1j}X_{ij}+r_{ij}$$`
+The notation of RB is often used: Has five components:
+1. uppercase, italicized Roman letters used for observed variables (*Y, W, X*)
+2. Greek letters are the model parameters: `\(\beta, \gamma\)`
+3. lowercase Roman letters represent the variance components (*r, u*)
+4. letter subscripts (*i, j*) provide information about the nesting structure, one letter for each level. Earlier letters imply nesting in the latter letter (*i* in *j*)
+5. Number subscripts used to map out the model structure. 
+
+---
+## Three kinds of questions motivate this analysis (RB, p. 81)
+
+1. Do MEANSES and SECTOR significantly predict the intercept?
+  + Consult `\(\gamma_{01}\)` &amp; `\(\gamma_{02}\)`, respectively 
+2. Do MEANSES and SECTOR significantly predict the within-school slopes? 
+  + `\(\gamma_{11}\)` is estimated to discover whether high SES schools differ from low SES schools in terms of the strength of association between student SES and achievement (controlling for SECTOR)
+  + `\(\gamma_{12}\)` is estimated to see if public vs. Catholic schools differ in terms of SES and achievement (controlling for MEANSES)
+3. How much variation in the intercept and slopes is explained by SECTOR and MEANSES as predictors. We look at `\(\tau_{00}\)` and `\(\tau_{11}\)` to answer this
+
+We have a lot going on now
+---
+
+### To run this (referred to as a intercepts- and slopes-as-outcomes model*)
+
+Helps to consult the model as specified (written out)
+
+```
+m4 &lt;- lmer(mach ~ meanses + sector + cses + meanses*cses + sector*cses + 
+  (cses|school), data = hsb)
+summary(m4)
+```
+
+
+```
+##  school   (Intercept)  2.380   1.5426       
+##           cses         0.101   0.3179   0.39
+##  Residual             36.721   6.0598       
+## Number of obs: 7185, groups:  school, 160
+## 
+## Fixed effects:
+##                     Estimate Std. Error       df t value Pr(&gt;|t|)    
+## (Intercept)          12.1279     0.1993 159.8955  60.856  &lt; 2e-16 ***
+## meanses               5.3329     0.3692 150.9859  14.446  &lt; 2e-16 ***
+## sectorCatholic        1.2266     0.3063 149.6127   4.005 9.74e-05 ***
+## cses                  2.9450     0.1556 139.4991  18.928  &lt; 2e-16 ***
+## meanses:cses          1.0393     0.2989 160.4374   3.477 0.000652 ***
+## sectorCatholic:cses  -1.6427     0.2398 143.2292  -6.851 2.01e-10 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+
+.footnote[
+&lt;sup&gt;*&lt;/sup&gt;I don't particularly like these labels
+]
+
+---
+
+### First, we might look at variance of cses at this point (.101)
+
+- Should we keep the slope as random __OR__ could the additional variables of meanses and sector explain the variability?
+- Can run a model again WITHOUT the random slope and compare it to this model using the likelihood ratio test
+
+
+```r
+m4.ri &lt;- lmer(mach ~ meanses + sector + cses + meanses*cses + sector*cses + 
+    (1|school), data = hsb) #random intercept only
+anova(m4.ri, m4)
+```
+
+```
+## refitting model(s) with ML (instead of REML)
+```
+
+```
+## Data: hsb
+## Models:
+## m4.ri: mach ~ meanses + sector + cses + meanses * cses + sector * cses + (1 | school)
+## m4: mach ~ meanses + sector + cses + meanses * cses + sector * cses + (cses | school)
+##       npar   AIC   BIC logLik deviance  Chisq Df Pr(&gt;Chisq)
+## m4.ri    8 46513 46568 -23249    46497                     
+## m4      10 46516 46585 -23248    46496 1.0016  2     0.6061
+```
+
+Results show that the model with random slopes is *not* needed, `\(\chi\)`(2) = 1.00, *p* = .61. We may opt for the more parsimonious random intercept model (no need for random slopes). `m4.ri` is preferred.
+
+---
+
+### Review model results again with the simpler random intercept model
+
+```
+summary(m4.ri)
+```
+
+
+```
+##  school   (Intercept)  2.375   1.541   
+##  Residual             36.766   6.064   
+## Number of obs: 7185, groups:  school, 160
+## 
+## Fixed effects:
+##                      Estimate Std. Error        df t value Pr(&gt;|t|)    
+## (Intercept)           12.1282     0.1992  160.0061  60.885  &lt; 2e-16 ***
+## meanses                5.3367     0.3690  151.0718  14.463  &lt; 2e-16 ***
+## sectorCatholic         1.2245     0.3061  149.6953   4.000 9.92e-05 ***
+## cses                   2.9421     0.1512 7018.2611  19.457  &lt; 2e-16 ***
+## meanses:cses           1.0444     0.2910 7018.2611   3.589 0.000335 ***
+## sectorCatholic:cses   -1.6422     0.2331 7018.2611  -7.045 2.03e-12 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+```
+
+- All fixed effect coefficients are statistically significant, all *p*s &lt; .001.
+- NOTE: if you compare this though with the output 2 slides ago, the results are pretty much the same in terms of the coefficients!
+---
+
+## What do the fixed effects mean?
+
+
+```
+## (Intercept)           12.1282     0.1992  160.0061  60.885  &lt; 2e-16 ***
+## meanses                5.3367     0.3690  151.0718  14.463  &lt; 2e-16 ***
+## sectorCatholic         1.2245     0.3061  149.6953   4.000 9.92e-05 ***
+## cses                   2.9421     0.1512 7018.2611  19.457  &lt; 2e-16 ***
+## meanses:cses           1.0444     0.2910 7018.2611   3.589 0.000335 ***
+## sectorCatholic:cses   -1.6422     0.2331 7018.2611  -7.045 2.03e-12 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+```
+
+- meanses: mean ses is positively related to math achievement, `\(\gamma_{01} = 5.34\)`
+- sector = 1 (Catholic) means that Catholic schools students scored higher than public school students by 1.22 pts, `\(\gamma_{02} = 1.22\)`
+- With regard to the slopes, tendency for schools of high meanses to have larger slopes with schools with lower meanses, `\(\gamma_{11} = 1.04\)`
+- Catholic schools have a weaker SES slope than do public schools (on average), `\(\gamma_{12} = -1.64\)`
+
+---
+
+### To understand the interactions, we can plot this. But should write down the equation to understand it
+
+.center[
+Math = 12.13 + 5.34(MEANSES) + 1.22(Catholic) + 2.94(CSES) + 1.04(MEANSES `\(\times\)` Catholic) -1.64(Catholic `\(\times\)` CSES)
+]
+
+- if we want to see the slopes when MEANSES = 0 (or the average MEANSES), we can zero out those coefficients (mult by zero is 0)
+- Here the zero has a meaning (average SES for the school)
+
+Math = 12.13 + ~~5.34(MEANSES)~~ + 1.22(Catholic) + 2.94(CSES) + ~~1.04(MEANSES `\(\times\)` Catholic)~~ -1.64(Catholic `\(\times\)` CSES)
+
+Catholic: 12.13 + 1.22 + 2.94(CSES) -1.64(CSES) = 13.35 + 1.30(CSES)
+
+Public: 12.13 + 2.94(CSES)
+
+--- 
+
+---
+
+### If we plot this, can see the less steep slope for Catholic schools
+
+Catholic schools can be seen as more equitable in this case.
+
+- Catholic: 13.35 + 1.30(CSES)
+- Public: 12.13 + 2.94(CSES)
+
+
+```r
+ggplot(hsb, aes(x = cses, y = mach, col = sector)) +
+  geom_point(alpha = .5) + 
+  geom_abline(intercept =  13.35, slope = 1.30, col = 'green') +
+  geom_abline(intercept =  12.13, slope = 2.94, col = 'red')
+```
+
+![](02_logicMLM_files/figure-html/unnamed-chunk-38-1.png)&lt;!-- --&gt;
+
+???
+
+
+plot(mach ~ cses, data = hsb, col = hsb$sector)
+abline(a = 13.35, b = 1.3, col = 'blue')
+abline(a = 12.13, b = 2.94, col = 'red')
+
+---
+
+## Revisiting pseudo R&lt;sup&gt;2&lt;/sup&gt;s
+
+
+```
+## Random effects:
+##  Groups   Name        Variance Std.Dev.
+##  school   (Intercept)  2.375   1.541   
+##  Residual             36.766   6.064   
+## Number of obs: 7185, groups:  school, 160
+```
+
+From the null model: 
+- school variance was 8.614
+- within school variance was 39.15
+
+- Level 2 pR&lt;sup&gt;2&lt;/sup&gt; = (8.61 - 2.38) / 8.61 = .723
+- Level 1 pR&lt;sup&gt;2&lt;/sup&gt; = (39.15 - 36.77) / 39.15 = .061
+
+
+--- 
+---
+
+## What about an overall R&lt;sup&gt;2&lt;/sup&gt;? (not a pseudo R&lt;sup&gt;2&lt;/sup&gt;?)
+
+- At times, articles may suggest that pseudo R&lt;sup&gt;2&lt;/sup&gt; are the only thing we can get from multilevel models&lt;sup&gt;1&lt;/sup&gt;
+- However, we know what the actual variance is and what it was reduced to in the full model
+  + total variance in null model: 39.15 + 8.61 = 47.76
+  + total variance in full model: 36.77 + 2.38 = 39.15
+- R&lt;sup&gt;2&lt;/sup&gt;: (47.76 - 39.15) / 47.76 = .18
+
+- Yet another way: 
+
+```r
+Bs &lt;- fixef(m4.ri) #get point estimates
+Xs &lt;- model.matrix(m4.ri)
+pred &lt;- Xs %*% Bs #predicted score. do not use `fitted`: no RE [or marginal]
+cor(pred, hsb$mach)^2 #this is the correlation of pred vs obs sq
+```
+
+```
+##          [,1]
+## [1,] 0.175458
+```
+
+  
+.footnote[&lt;sup&gt;1&lt;/sup&gt;see Huang, F. (2018). Multilevel modeling myths. *School Psychology Quarterly, 33,* 492-499. doi: 10.1037/spq0000272. ]
+
+???
+
+---
+
+## Summary
+
+- Multilevel models consist of a variety of models (e.g., null model, random intercept model, random slope/coefficients model)
+- It is just regression-- however we are accounting for the clustering
+  + Again, this is why it is very important that you understand regression
+- Variance is partitioned between and within groups
+- Different ways of computing pseudo `\(R^2\)`- no one accepted standard
+- The type of model run should be based on the research question and the level of the variable of interest (e.g., level 1, level 2, both)
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
