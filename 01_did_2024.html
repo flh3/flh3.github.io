@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Difference-in-difference models using R</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Francis L. Huang" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/rutgers-fonts.css" rel="stylesheet" />
+    <script src="libs/kePrint/kePrint.js"></script>
+    <link href="libs/lightable/lightable.css" rel="stylesheet" />
+    <link rel="stylesheet" href="footer-header.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+class: center, middle
+
+# Difference-in-Difference Models
+
+### Francis L. Huang
+2022.02.13 (updated: 2024-03-04)
+&lt;svg viewBox="0 0 512 512" style="height:1em;position:relative;display:inline-block;top:.1em;" xmlns="http://www.w3.org/2000/svg"&gt;  &lt;path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"&gt;&lt;/path&gt;&lt;/svg&gt; http://francish.net/
+&lt;svg viewBox="0 0 512 512" style="height:1em;position:relative;display:inline-block;top:.1em;" xmlns="http://www.w3.org/2000/svg"&gt;  &lt;path d="M464 64H48C21.49 64 0 85.49 0 112v288c0 26.51 21.49 48 48 48h416c26.51 0 48-21.49 48-48V112c0-26.51-21.49-48-48-48zm0 48v40.805c-22.422 18.259-58.168 46.651-134.587 106.49-16.841 13.247-50.201 45.072-73.413 44.701-23.208.375-56.579-31.459-73.413-44.701C106.18 199.465 70.425 171.067 48 152.805V112h416zM48 400V214.398c22.914 18.251 55.409 43.862 104.938 82.646 21.857 17.205 60.134 55.186 103.062 54.955 42.717.231 80.509-37.199 103.053-54.947 49.528-38.783 82.032-64.401 104.947-82.653V400H48z"&gt;&lt;/path&gt;&lt;/svg&gt; huangf@missouri.edu
+&lt;svg viewBox="0 0 512 512" style="height:1em;position:relative;display:inline-block;top:.1em;" xmlns="http://www.w3.org/2000/svg"&gt;  &lt;path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"&gt;&lt;/path&gt;&lt;/svg&gt; @flhuang
+
+---
+
+
+
+layout: true
+
+&lt;div class="my-header"&gt;&lt;span&gt;Difference in difference&lt;/span&gt;
+&lt;/div&gt;
+&lt;div class="my-footer"&gt;&lt;span&gt;Francis Huang / huangf@missouri.edu    
+&lt;/span&gt;&lt;/div&gt;
+
+---
+
+## Difference-in-difference (DiD) models
+
+- Can be used with or without experimental data
+- One of the most commonly used techniques to get at program effects
+- Very commonly used in economics
+- Works with panel/longitudinal data and cross sectional designs
+  - Will show three examples
+  
+&gt; Differences-in-differences (DiD) is one of the most popular methods in the social sciences for estimating causal effects in non-experimental settings. [(Roth et al., 2022)](https://arxiv.org/pdf/2201.01194.pdf)
+
+
+---
+
+## Logic of DiD models
+
+
+&lt;table&gt;
+&lt;caption&gt;&lt;/caption&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;  &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; After &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Before &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Difference &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Treatment &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; B-A &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Control &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; D &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; C &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; D-C &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Difference (T-C) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; B-D &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; A-C &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; DD = (B-A) - (D-C) &lt;BR&gt;DD = (B-D) - (A-C) &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+- Before/after can refer to before/after a policy change/intervention
+- Can be time 1 vs time 2
+
+
+&lt;table&gt;
+&lt;caption&gt;&lt;/caption&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;  &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Post &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Pre &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Difference &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Treatment &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 55 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 50 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 55 - 50 = 5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Control &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 48 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 46 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 48 - 46 = 2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Difference (T-C) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 55 - 48 = 7 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 50 - 46 = 4 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; DD = 5 - 2 = 3 &lt;BR&gt;DD = 7 - 4 = 3 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+
+---
+
+class: center, middle
+
+## From the book: Mississipi Experiment
+
+---
+
+## Background: Focusing on bank failures in the 1930s
+
+- Can a monetary intervention help mitigate banking panic?
+- Crisis happened in 1931 (after Caldwell collapse)
+- Time of the depression and banks were having a crisis of confidence, needed to fend off depositor panic (who would pull out their money)
+- The Federal Reserve (America's central bank) could restrict the flow of money or to fund bank liquidity (lend or not lend money to the banks)
+- Federal Reserve is organized in 12 districts each run by its out regional federal reserve bank-- districts were setup in 1913, when the Fed was created (and and was based on population size)
+      - Atlanta Fed ran the 6th district (favored lending; "easy money")
+      - St. Louis Fed ran the 8th district (favored restrictive credit)
+- After the Caldwell collapse, 
+      - Atlanta Fed increased lending by 40%
+      - St Louis Fed fell by 10%
+
+
+---
+
+### See 6th vs 8th district (MS) [from Wikipedia]
+
+.center[
+&lt;img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Federal_Reserve_Districts_Map_-_Banks_%26_Branches.png/1920px-Federal_Reserve_Districts_Map_-_Banks_%26_Branches.png" width="80%" /&gt;
+]
+
+---
+
+## Read in the data and do some data management
+
+
+```r
+library(tidyr)
+library(ggplot2)
+library(dplyr)
+dat &lt;- rio::import("http://masteringmetrics.com/wp-content/uploads/2015/02/banks.csv")
+head(dat)
+```
+
+```
+   date   weekday day month year bib6 bio6 bib8 bio8
+1 10775    Monday   1     7 1929  141  141  169  169
+2 10776   Tuesday   2     7 1929  141  141  169  169
+3 10777 Wednesday   3     7 1929  141  141  169  169
+4 10778  Thursday   4     7 1929  141  141  169  169
+5 10779    Friday   5     7 1929  141  141  169  169
+6 10780  Saturday   6     7 1929  141  141  169  169
+```
+
+```r
+### I got this from the Stata syntax
+dat2 &lt;- filter(dat, month == 7, day == 1) %&gt;%
+   select(year, bib6, bib8)
+dat3 &lt;- pivot_longer(dat2, cols = c(bib6, bib8), 
+        values_to = 'banks')
+dat3$district &lt;- ifelse(dat3$name == 'bib6', '6th', '8th')
+dat3$post &lt;- ifelse(dat3$year &lt; 1931, 0, 1)
+dat3$treat &lt;- ifelse(dat3$name == 'bib6', 1, 0)
+```
+
+---
+
+### Getting some descriptives... (p. 183)
+
+
+```r
+filter(dat3, year %in% c(1930, 1931)) %&gt;%
+   group_by(year, treat, district) %&gt;%
+   summarise(banks = mean(banks))
+```
+
+```
+# A tibble: 4 × 4
+# Groups:   year, treat [4]
+   year treat district banks
+  &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;    &lt;dbl&gt;
+1  1930     0 8th        165
+2  1930     1 6th        135
+3  1931     0 8th        132
+4  1931     1 6th        121
+```
+
+
+---
+
+### Plotting some data... (p. 188)
+
+
+```r
+ggplot(dat3, aes(x = year, y = banks, shape = district)) +
+   geom_point() + geom_line() + theme_bw() + theme(legend.position = 'none') +
+   labs(x = 'Year', y = 'Number of banks in business', shape = 'District',
+        title = 'Figure 5.2') +
+   geom_text(data = filter(dat3, year == max(year)),
+             aes(label = district), hjust = 0, nudge_x = 0.1)
+```
+
+&lt;img src="01_did_2024_files/figure-html/unnamed-chunk-8-1.png" height="350px" /&gt;
+
+---
+
+## Using a regression
+
+
+```r
+t1 &lt;- lm(banks ~ post + treat + treat * post, data = dat3)
+summary(t1)$coef
+```
+
+```
+            Estimate Std. Error   t value     Pr(&gt;|t|)
+(Intercept)    167.0   6.189709 26.980266 3.834935e-09
+post           -49.0   7.580815 -6.463685 1.954577e-04
+treat          -29.0   8.753571 -3.312934 1.065156e-02
+post:treat      20.5  10.720891  1.912155 9.222442e-02
+```
+
+This matches with what is on p. 188.
+
+&gt; "These results suggest that roughly 21 banks were kept alive by Sixth District lending.... a marginally significant result, the best we can hope for with such as small sample sample."
+
+---
+
+class: center, middle
+
+## History of DiD
+
+---
+
+## Often attributed to John Snow in the 1850s (though did not really use a DiD)
+
+- Lots of articles that show [this](http://www.hilerun.org/econ/papers/snow/SSM_DiD.pdf) with data available [here](https://github.com/tscoleman/SnowCholera).
+- See also this in [Nature](https://www.nature.com/articles/495169a.pdf?origin=ppub)
+- ["Difference in difference in the time of Cholera: A gentle introduction for epidemiolosits"](https://pubmed.ncbi.nlm.nih.gov/33791189/)
+- See also this [presentation](https://www.hilerun.org/econ/papers/snow/SnowOverall_slides.pdf): story is full of "heroism, death, and statistics"
+- Referred to as the father of modern epidemiology
+
+.center[
+&lt;img src="images/johnsnowfatherepid.jpg" width="20%" /&gt;
+]
+
+---
+
+### Cholera and DiD
+
+- ["On the mode of communication of Cholera"](On the mode of communication of cholera”)
+- Snow used data from the cholera epidemic in London in 1849 and 1854
+- Cholera causes diarrhea, vomiting, and dehydration: mortality is approx 50%
+--
+- Prevailing theory was that cholera was caused by *bad air* (miasma)
+   - Snow examined sick patients-- covered the sick with burlap bags but still got sick
+   - First symptoms were digestive problems
+--
+- Rethought that transmission was due to the water: people drank water from the Thames river
+   - Three companies provided water: Southwark, Vauxhall, and Lambeth
+   - Lambeth moved its water source upstream of the Thames (treatment: clean water)
+   
+--
+
+&lt;table&gt;
+&lt;caption&gt;Deaths per 10,000 people&lt;/caption&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Company &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; 1849 &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; 1854 &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Southwark and Vauxhall &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 135 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 147 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Lambeth &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 85 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 19 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.small[Source: http://www.hilerun.org/econ/papers/snow/SSM_DiD.pdf]
+
+---
+
+
+class: center, middle
+
+## Article 1: Does aid matter?
+
+---
+
+## Article: Does aid matter?&lt;sup&gt;1&lt;/sup&gt; (Dynarski, 2003)
+
+Example not using panel data
+- Sudden change in federal policy: effect of financial aid for post-secondary education on the decision of hs seniors to go to college
+- Between 1965-1982, Social Sec Survivor Benefits (SSSB) program offered $6,700 (in 2000 dollars) in college fin aid to 18-22 yr old children of deceased, disabled, or retired SS recipients
+- In 1981, congress eliminated the program resulting in otherwise eligible children not enrolled in college in 1982 would not received the college-aid offer
+- Using NLSY: Dynarski identified students who would have been eligible for the aid offer because their fathers had died
+
+.footnote[
+[1] Dynarski, S. M. (2003). Does aid matter? Measuring the effect of student aid on college attendance and completion. *The American Economic Review, 93*, 279-288.
+]
+
+---
+
+## Setup
+
+- **Treatment:** 137 HS seniors who were eligible before the policy change (1979 to 1981)
+- **Control:** 54 HS seniors who would have been eligible but policy had changed (1982 and 1983) and thus did not get aid
+- Both groups should be equal in expectation except that one group was eligible for aid and the other was not
+- Outcome was COLL: whether the student had attended college by age 23 (1 = yes, 0 = no)
+- Used the National Longitudinal Survey of Youth (NLSY)
+
+
+```r
+dat &lt;- rio::import("https://stats.idre.ucla.edu/stat/stata/examples/methods_matter/chapter8/dynarski.dta")
+head(dat)
+```
+
+```
+  id hhid   wt88 coll hgc23 yearsr fatherdec offer
+1  9    9 691916    1    13     81         0     1
+2 14   13 784204    1    16     81         0     1
+3 15   15 811032    1    16     82         0     0
+4 21   20 644853    1    16     79         0     1
+5 22   22 728189    1    16     80         0     1
+6 24   23 776590    0    12     79         0     1
+```
+
+
+---
+
+## Inspect the data: Unweighted data
+
+
+```r
+library(summarytools)
+ctable(dat$fatherdec, dat$yearsr, prop = "n")
+```
+
+```
+Cross-Tabulation  
+fatherdec * yearsr  
+Data Frame: dat  
+
+----------- -------- ----- ------ ----- ----- ----- -------
+              yearsr    79     80    81    82    83   Total
+  fatherdec                                                
+          0            892    986   867   828   222    3795
+          1             41     44    52    41    13     191
+      Total            933   1030   919   869   235    3986
+----------- -------- ----- ------ ----- ----- ----- -------
+```
+
+---
+
+## Inspect the data: Weighted data
+
+
+```r
+ctable(dat$fatherdec, dat$yearsr, weights = dat$wt88, 
+       rescale.weights = TRUE, prop = 'n')
+```
+
+```
+Cross-Tabulation  
+fatherdec * yearsr  
+Data Frame: dat  
+
+----------- -------- ----- ------ ----- ----- ----- -------
+              yearsr    79     80    81    82    83   Total
+  fatherdec                                                
+          0            901    966   846   911   204    3828
+          1             37     35    40    37     9     158
+      Total            937   1001   886   948   213    3986
+----------- -------- ----- ------ ----- ----- ----- -------
+```
+
+Talk about [weights](https://francish.netlify.app/post/why-weight/) … 
+
+---
+
+### Side note: NAEP 1982 8th grade math scores (from Wainer &amp; Brown, 2004)
+
+
+
+
+
+```
+# A tibble: 2 × 4
+  group     W     B     O
+  &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1 NE      281   236   259
+2 NJ      283   242   260
+```
+
+--
+
+Which state has better overall performance?
+
+--
+
+
+```
+# A tibble: 2 × 2
+  group    mn
+  &lt;chr&gt; &lt;dbl&gt;
+1 NE     277.
+2 NJ     272.
+```
+
+What accounts for this difference?
+
+--
+
+
+```
+# A tibble: 2 × 4
+  group     W     B     O
+  &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1 NE     0.87  0.05  0.08
+2 NJ     0.66  0.15  0.19
+```
+
+---
+
+## If weights are accounted for...
+
+
+```r
+t1
+```
+
+```
+# A tibble: 6 × 4
+  group race     wt score
+  &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt;
+1 NE    W      0.87   281
+2 NE    B      0.05   236
+3 NE    O      0.08   259
+4 NJ    W      0.66   283
+5 NJ    B      0.15   242
+6 NJ    O      0.19   260
+```
+
+```r
+t1 %&gt;% group_by(group) %&gt;%
+   summarise(mean = mean(score),
+             weighted_mean = weighted.mean(score, wt))
+```
+
+```
+# A tibble: 2 × 3
+  group  mean weighted_mean
+  &lt;chr&gt; &lt;dbl&gt;         &lt;dbl&gt;
+1 NE     259.          277.
+2 NJ     262.          272.
+```
+
+Is your interest in the overall state or individuals of a particular race?
+- Also, known as .blue[Simpson's Paradox]
+
+---
+
+### Using a regression:
+
+```
+group  mean weighted_mean
+NE     259.          277.
+NJ     262.          272.
+```
+
+
+```r
+coef(lm(score ~ group, data = t1))
+```
+
+```
+(Intercept)     groupNJ 
+   258.6667      3.0000 
+```
+
+```r
+coef(lm(score ~ group, weights = wt, data = t1))
+```
+
+```
+(Intercept)     groupNJ 
+     276.99       -4.51 
+```
+
+---
+
+## NOTE: the `offer` variable is based on time
+
+
+```r
+ctable(dat$offer, dat$yearsr, prop = 'n')
+```
+
+```
+Cross-Tabulation  
+offer * yearsr  
+Data Frame: dat  
+
+------- -------- ----- ------ ----- ----- ----- -------
+          yearsr    79     80    81    82    83   Total
+  offer                                                
+      0              0      0     0   869   235    1104
+      1            933   1030   919     0     0    2882
+  Total            933   1030   919   869   235    3986
+------- -------- ----- ------ ----- ----- ----- -------
+```
+- Offer was in the years 79-81 when the policy was still around
+
+---
+### Simple way: do a test for those whose fathers were deceased before and after the policy change (offer variable)
+
+```r
+filter(dat, fatherdec == 1) %&gt;%
+   group_by(offer) %&gt;%
+   summarise(out = weighted.mean(coll, wt88))
+```
+
+```
+# A tibble: 2 × 2
+  offer   out
+  &lt;dbl&gt; &lt;dbl&gt;
+1     0 0.352
+2     1 0.560
+```
+
+---
+
+## Using a linear model (w/deceased fathers)
+
+
+```r
+# library(fixest) #NEW
+library(estimatr)
+m1 &lt;- lm_robust(coll ~ offer, data = subset(dat, fatherdec == 1), 
+ weights = wt88)
+summary(m1)
+```
+
+```
+
+Call:
+lm_robust(formula = coll ~ offer, data = subset(dat, fatherdec == 
+    1), weights = wt88)
+
+Weighted, Standard error type:  HC2 
+
+Coefficients:
+            Estimate Std. Error t value  Pr(&gt;|t|) CI Lower CI Upper  DF
+(Intercept)   0.3522    0.08277   4.255 3.283e-05   0.1889   0.5155 189
+offer         0.2082    0.09755   2.135 3.408e-02   0.0158   0.4007 189
+
+Multiple R-squared:  0.03578 ,	Adjusted R-squared:  0.03068 
+F-statistic: 4.556 on 1 and 189 DF,  p-value: 0.03408
+```
+
+- However– this is just a simple before vs after analysis– a counterfeit counterfactual 
+- Was there a change with those whose fathers did not pass away? Would you expect a change? Why or why not?
+
+???
+
+- NOTE: the `weights` option has a `~` that is needed.
+m1 &lt;- feglm(coll ~ offer, data = subset(dat, fatherdec == 1), 
+ weights = ~wt88)
+
+
+---
+
+## Note on using `lm` vs other functions
+
+- `lm` and `glm` are great for all your regression needs
+- Often, we need to account for group fixed effects and (cluster) robust standard errors
+- There are of course many ways to do this in `r` (e.g., `sandwich`, `lmtest`)
+- However, often, this can be simplified using more modern packages like `estimatr` (using `lm_robust`) and `fixest` (using several other functions)
+      - A limitation of `lm_robust` is that it is only for linear models
+      - An advantage of using `fixest` is that it can be used for different kinds of glms (logistic, Poisson, etc.): dichotomous, count, etc. outcomes.
+      
+         - See [here](https://cran.r-project.org/web/packages/fixest/vignettes/fixest_walkthrough.html)
+         - `feglm` is probably more flexible vs `lm_robust`: see documentation
+
+
+---
+
+## Simple way: What happened to the other group?
+
+
+```r
+filter(dat, fatherdec == 0) %&gt;%
+   group_by(offer) %&gt;%
+   summarise(out = weighted.mean(coll, wt88))
+```
+
+```
+# A tibble: 2 × 2
+  offer   out
+  &lt;dbl&gt; &lt;dbl&gt;
+1     0 0.476
+2     1 0.502
+```
+
+---
+
+## Using a linear model (nondeceased fathers)
+
+
+```r
+m2 &lt;- lm_robust(coll ~ offer, data = subset(dat, fatherdec == 0), 
+               weights = wt88)
+summary(m2)
+```
+
+```
+
+Call:
+lm_robust(formula = coll ~ offer, data = subset(dat, fatherdec == 
+    0), weights = wt88)
+
+Weighted, Standard error type:  HC2 
+
+Coefficients:
+            Estimate Std. Error t value   Pr(&gt;|t|) CI Lower CI Upper   DF
+(Intercept)  0.47569    0.01848  25.743 7.924e-135  0.43946  0.51192 3793
+offer        0.02601    0.02174   1.197  2.315e-01 -0.01661  0.06862 3793
+
+Multiple R-squared:  0.0005588 ,	Adjusted R-squared:  0.0002953 
+F-statistic: 1.432 on 1 and 3793 DF,  p-value: 0.2315
+```
+
+- Model is being run one group at a time ...
+
+---
+
+## What about running the model with both groups?
+
+Rethink what is the 'treatment' here...
+
+
+```r
+dat %&gt;% group_by(offer, fatherdec) %&gt;%
+   summarise(out = weighted.mean(coll, wt88))
+```
+
+```
+# A tibble: 4 × 3
+# Groups:   offer [2]
+  offer fatherdec   out
+  &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt;
+1     0         0 0.476
+2     0         1 0.352
+3     1         0 0.502
+4     1         1 0.560
+```
+
+What is the policy effect then? We don't usually estimate this way because we don't get a standard error for the DiD estimate
+
+---
+
+## Plotting the differences
+
+
+```r
+dat1 &lt;- dat %&gt;% group_by(offer, fatherdec) %&gt;%
+   summarise(coll = weighted.mean(coll, wt88))
+library(ggplot2)
+ggplot(dat1, aes(x = factor(offer), y = coll, group = fatherdec,
+  shape = factor(fatherdec))) +
+  geom_point() +  geom_line() +
+  labs(x = "Offer", y = 'Attended college', 
+  shape = 'Father deceased') +
+  theme_bw()
+```
+
+&lt;img src="01_did_2024_files/figure-html/unnamed-chunk-27-1.png" width="504" /&gt;
+---
+
+## Perform the DiD in a regression framework: In general
+
+.center[
+`\(Y_{td} = \gamma_0 + \gamma_1 Treat + \gamma_2 Time + \gamma_3 Treat \times Time + \varepsilon\)`
+]
+
+
+` `  | Time 1  | Time 2  | Difference (T2 - T1)
+--------|---------|---------|--------------------
+`Control` | `\(\gamma_{0}\)` |  `\(\gamma_{0} + \gamma_{2}\)` | `\(\gamma_{2}\)`
+`Treatment` | `\(\gamma_{0} + \gamma_{1}\)` |  `\(\gamma_{0} + \gamma_{1} + \gamma_{2} + \gamma_{3}\)` | `\(\gamma_{2} + \gamma_{3}\)`
+`Difference (T - C)` | `\(\gamma_{1}\)` |  `\(\gamma_{1} + \gamma_{3}\)` | `\(\gamma_{3}\)`
+
+.pull-left[
+&lt;img src="images/fig1.png" width="80%" /&gt;
+]
+
+.pull-right[
+&lt;img src="images/fig2.png" width="80%" /&gt;
+
+p. 281
+]
+---
+
+#### Model Results (CR0 is used to make it match with the book)
+
+
+```r
+m3 &lt;- lm_robust(coll ~ offer + fatherdec + offer:fatherdec, data = dat, se_type = 'CR0',
+         weights = wt88, cluster = hhid) 
+summary(m3)
+```
+
+```
+
+Call:
+lm_robust(formula = coll ~ offer + fatherdec + offer:fatherdec, 
+    data = dat, weights = wt88, clusters = hhid, se_type = "CR0")
+
+Weighted, Standard error type:  CR0 
+
+Coefficients:
+                Estimate Std. Error t value   Pr(&gt;|t|)  CI Lower CI Upper   DF
+(Intercept)      0.47569    0.01886  25.220 6.841e-128  0.438711  0.51268 3122
+offer            0.02601    0.02126   1.223  2.213e-01 -0.015679  0.06769 3122
+fatherdec       -0.12348    0.08341  -1.480  1.389e-01 -0.287023  0.04007 3122
+offer:fatherdec  0.18223    0.09583   1.902  5.731e-02 -0.005658  0.37012 3122
+
+Multiple R-squared:  0.001961 ,	Adjusted R-squared:  0.001209 
+F-statistic: 2.189 on 3 and 3122 DF,  p-value: 0.08724
+```
+- `cluster =` is used since respondents are clustered in households (`hhid`) as well.
+**NOTE:** A one-tailed test was used-- just divide the *p* value (*p* = .057) by 2 `\(\rightarrow\)` *p* = .0285. 
+
+.small["We used a one-tailed test because we had a strong prior belief that the offer of scholarship aid would increase the probability of college attendance, not decrease it."]
+
+---
+
+## Compare to results to original article
+.center[
+&lt;img src="images/fig3.png" width="60%" /&gt;
+
+]
+
+### .center[Same results]
+
+---
+
+
+## Results (described in Murnane &amp; Willett, 2011)
+
+&lt;img src="images/fig4.png" width="60%" /&gt;&lt;img src="images/fig5.png" width="60%" /&gt;
+
+---
+class: center, middle
+
+## Article 2: Minimum wages and employment
+
+
+---
+
+## Classic example using panel data (2 time points)
+
+.center[
+&lt;img src="images/fig6.png" width=550 height=300&gt;]
+
+- Does raising the minimum wage affect employment opportunities? NJ (Treat) /PA (Control)
+- Data collected: phone interviews before and after rise in minimum wage
+- Logic: higher wages -&gt; less employees (because more expensive)
+- Fast food industry employs a lot of minimum wage employees 
+- NOTE: Widely cited study- MANY, many critics: so many studies criticizing this
+
+---
+
+## Some R syntax and data management...
+
+
+```r
+library(dplyr)
+#library(descr) #can use this for CrossTable
+x &lt;- rio::import("https://github.com/flh3/evalclass/raw/main/did/fastfood.xls")
+names(x) &lt;- tolower(names(x))
+x$empft &lt;- as.numeric(x$empft)
+x$emppt &lt;- as.numeric(x$emppt)
+x$nmgrs &lt;- as.numeric(x$nmgrs)
+x$empft2 &lt;- as.numeric(x$empft2)
+x$emppt2 &lt;- as.numeric(x$emppt2)
+x$nmgrs2 &lt;- as.numeric(x$nmgrs2)
+x$chain &lt;- factor(x$chain, labels = c('BK', 'KFC', 'RR', 'Wendys'))
+table(x$chain)
+```
+
+```
+
+    BK    KFC     RR Wendys 
+   171     80     99     60 
+```
+&lt;!-- http://www.stat.ucla.edu/projects/datasets/fastfood-explanation.html --&gt;
+&lt;!-- x &lt;- rio::import("http://www.stat.ucla.edu/projects/datasets/fastfood.dat") --&gt;
+---
+
+## More syntax: RECODE ft equivalent-- consult article
+
+
+```r
+x$state &lt;- factor(x$state, labels = c("PA", "NJ"))
+ctable(x$chain, x$state, prop ='c') #p 776
+```
+
+```
+Cross-Tabulation, Column Proportions  
+x$chain * x$state  
+
+--------- --------- ------------- -------------- --------------
+            x$state            PA             NJ          Total
+  x$chain                                                      
+       BK             35 ( 44.3%)   136 ( 41.1%)   171 ( 41.7%)
+      KFC             12 ( 15.2%)    68 ( 20.5%)    80 ( 19.5%)
+       RR             17 ( 21.5%)    82 ( 24.8%)    99 ( 24.1%)
+   Wendys             15 ( 19.0%)    45 ( 13.6%)    60 ( 14.6%)
+    Total             79 (100.0%)   331 (100.0%)   410 (100.0%)
+--------- --------- ------------- -------------- --------------
+```
+
+```r
+### see p. 775 column 2
+x$ft1 &lt;- with(x, empft + nmgrs + emppt * .5)
+x$ft2 &lt;- with(x, empft2 + nmgrs2 + emppt2 * .5)
+dat2 &lt;- select(x, state, ft1, ft2, sheet) #sheet = store
+dat3 &lt;- na.omit(dat2)
+```
+
+---
+
+## Inspect smaller dataset
+
+
+```r
+psych::headTail(dat3)
+```
+
+```
+    state   ft1  ft2 sheet
+1      NJ    15   27   113
+2      NJ    15 21.5   123
+3      NJ    24   23   135
+4      NJ 19.25 21.5   138
+...  &lt;NA&gt;   ...  ...   ...
+407    PA    18   34   514
+408    PA 20.25   10   516
+409    PA  15.5   14   521
+410    PA    21 17.5   522
+```
+
+- The data are in a standard 'wide' format
+- For a DiD though, we need this to be in a tall/long format
+
+---
+
+## Basic descriptives
+
+
+```r
+#p 776, see also table 3, p. 780
+x %&gt;% group_by(state) %&gt;% summarise(t1 = mean(ft1, na.rm = T),  
+  t2 = mean(ft2, na.rm = T), n = n())
+```
+
+```
+# A tibble: 2 × 4
+  state    t1    t2     n
+  &lt;fct&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;
+1 PA     23.3  21.2    79
+2 NJ     20.4  21.0   331
+```
+
+```r
+#see also table 3, p. 780
+dat3 %&gt;% group_by(state) %&gt;% summarise(t1 = mean(ft1),
+  t2 = mean(ft2), n = n())
+```
+
+```
+# A tibble: 2 × 4
+  state    t1    t2     n
+  &lt;fct&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;
+1 PA     23.4  21.1    75
+2 NJ     20.4  20.9   309
+```
+---
+
+## Compare to results in article: Examine the figure
+
+
+.pull-left[
+&lt;img src="images/ctabs.png" width=550 height=250&gt;
+]
+.pull-right[
+&lt;img src="images/pics.png" width=550 height=400&gt;
+]
+
+- Using the crosstab, you can figure out the difference and the story
+- This is also why it is appealing: straightforward to explain
+- BUT we don't just do it this way because we need the standard errors
+
+
+---
+
+## To run a DiD, data must be in a tall format: Reshape the dataset
+
+
+```r
+library(tidyr)
+test &lt;- pivot_longer(dat3, c(ft1, ft2), values_to = 'fte')
+test$time &lt;- 0 #everyone is T0
+test$time[test$name == 'ft2'] &lt;- 1
+psych::headTail(test)
+```
+
+```
+  state sheet name  fte time
+1    NJ   113  ft1   15    0
+2    NJ   113  ft2   27    1
+3    NJ   123  ft1   15    0
+4    NJ   123  ft2 21.5    1
+5  &lt;NA&gt;   ... &lt;NA&gt;  ...  ...
+6    PA   521  ft1 15.5    0
+7    PA   521  ft2   14    1
+8    PA   522  ft1   21    0
+9    PA   522  ft2 17.5    1
+```
+
+???
+library(reshape2)
+test &lt;- melt(dat3, id.vars = c('state', 'sheet'), 
+             measure.var = c('ft1', 'ft2'), value.name = 'fte')
+
+test$time[test$variable == 'ft1'] &lt;- 0
+test$time[test$variable == 'ft2'] &lt;- 1
+head(test, n = 3)
+tail(test, n = 3)
+
+---
+
+## Look at how the data look when arranged (sorted)
+
+```r
+arrange(test, sheet) %&gt;% psych::headTail()
+```
+
+```
+  state sheet name  fte time
+1    NJ     1  ft1   35    0
+2    NJ     1  ft2   44    1
+3    NJ     2  ft1   16    0
+4    NJ     2  ft2 15.5    1
+5  &lt;NA&gt;   ... &lt;NA&gt;  ...  ...
+6    PA   521  ft1 15.5    0
+7    PA   521  ft2   14    1
+8    PA   522  ft1   21    0
+9    PA   522  ft2 17.5    1
+```
+---
+
+## Run as an OLS: Focus on the point estimates first
+
+```
+ols &lt;- lm(fte ~ state + time + state:time, data = test)
+summary(ols)
+```
+
+
+```
+                      Est.   S.E.   t val.      p
+------------------ ------- ------ -------- ------
+(Intercept)          23.38   1.10    21.29   0.00
+stateNJ              -2.95   1.22    -2.41   0.02
+time                 -2.28   1.55    -1.47   0.14
+stateNJ:time          2.75   1.73     1.59   0.11
+```
+## 
+&lt;P&gt;
+
+` `  | Time 1  | Time 2  | Difference (T2 - T1)
+--------|---------|---------|--------------------
+`PA` | `\(\gamma_{0}\)` |  `\(\gamma_{0} + \gamma_{2}\)` | `\(\gamma_{2}\)`
+`NJ` | `\(\gamma_{0} + \gamma_{1}\)` |  `\(\gamma_{0} + \gamma_{1} + \gamma_{2} + \gamma_{3}\)` | `\(\gamma_{2} + \gamma_{3}\)`
+`Difference (T - C)` | `\(\gamma_{1}\)` |  `\(\gamma_{1} + \gamma_{3}\)` | `\(\gamma_{3}\)`
+
+---
+
+## The intercept: `\(\gamma_{0}\)`
+
+```
+                      Est.   S.E.   t val.      p
+------------------ ------- ------ -------- ------
+*(Intercept)          23.38   1.10    21.29   0.00
+stateNJ              -2.95   1.22    -2.41   0.02
+time                 -2.28   1.55    -1.47   0.14
+stateNJ:time          2.75   1.73     1.59   0.11
+```
+
+&lt;BR&gt;
+
+` `  | Time 1  | Time 2  | Difference (T2 - T1)
+--------|---------|---------|--------------------
+`PA` | `\(23.38\)` |  `\(\gamma_{0} + \gamma_{2}\)` | `\(\gamma_{2}\)`
+`NJ` | `\(\gamma_{0} + \gamma_{1}\)` |  `\(\gamma_{0} + \gamma_{1} + \gamma_{2} + \gamma_{3}\)` | `\(\gamma_{2} + \gamma_{3}\)`
+`Difference (T - C)` | `\(\gamma_{1}\)` |  `\(\gamma_{1} + \gamma_{3}\)` | `\(\gamma_{3}\)`
+
+.center[
+`\(Y_{td} = \gamma_0 + \gamma_1 Treat + \gamma_2 Time + \gamma_3 Treat \times Time + \varepsilon\)`
+]
+
+
+---
+
+## StateNJ: `\(\gamma_{1}\)`
+
+```
+                      Est.   S.E.   t val.      p
+------------------ ------- ------ -------- ------
+(Intercept)          23.38   1.10    21.29   0.00
+*stateNJ              -2.95   1.22    -2.41   0.02
+time                 -2.28   1.55    -1.47   0.14
+stateNJ:time          2.75   1.73     1.59   0.11
+```
+
+&lt;BR&gt;
+
+` `  | Time 1  | Time 2  | Difference (T2 - T1)
+--------|---------|---------|--------------------
+`PA` | `\(23.38\)` |  `\(\gamma_{0} + \gamma_{2}\)` | `\(\gamma_{2}\)`
+`NJ` | `\(23.38 + (-2.95) = 20.43\)` |  `\(\gamma_{0} + \gamma_{1} + \gamma_{2} + \gamma_{3}\)` | `\(\gamma_{2} + \gamma_{3}\)`
+`Difference (T - C)` | `\(-2.95\)` |  `\(\gamma_{1} + \gamma_{3}\)` | `\(\gamma_{3}\)`
+
+
+---
+
+## time: `\(\gamma_{2}\)`
+
+```
+                      Est.   S.E.   t val.      p
+------------------ ------- ------ -------- ------
+(Intercept)          23.38   1.10    21.29   0.00
+stateNJ              -2.95   1.22    -2.41   0.02
+*time                 -2.28   1.55    -1.47   0.14
+stateNJ:time          2.75   1.73     1.59   0.11
+```
+
+&lt;BR&gt;
+
+` `  | Time 1  | Time 2  | Difference (T2 - T1)
+--------|---------|---------|--------------------
+`PA` | `\(23.38\)` |  `\(23.38 + (-2.28) = 21.1\)` | `\(-2.28\)`
+`NJ` | `\(20.43\)` |  `\(\gamma_{0} + \gamma_{1} + \gamma_{2} + \gamma_{3}\)` | `\(\gamma_{2} + \gamma_{3}\)`
+`Difference (T - C)` | `\(-2.95\)` |  `\(\gamma_{1} + \gamma_{3}\)` | `\(\gamma_{3}\)`
+
+---
+
+## time: `\(\gamma_{3}\)`
+
+```
+                      Est.   S.E.   t val.      p
+------------------ ------- ------ -------- ------
+(Intercept)          23.38   1.10    21.29   0.00
+stateNJ              -2.95   1.22    -2.41   0.02
+time                 -2.28   1.55    -1.47   0.14
+*stateNJ:time          2.75   1.73     1.59   0.11
+```
+
+&lt;BR&gt;
+
+` `  | Time 1  | Time 2  | Difference (T2 - T1)
+--------|---------|---------|--------------------
+`PA` | `\(23.38\)` |  `\(21.10\)` | `\(-2.28\)`
+`NJ` | `\(20.43\)` |  `\(20.90\)` | `\(0.47\)`
+`Difference (T - C)` | `\(-2.95\)` |  `\(-0.20\)` | `\(2.75\)`
+
+.center[
+`\(Y_{td} = \gamma_0 + \gamma_1 Treat + \gamma_2 Time + \gamma_3 Treat \times Time + \varepsilon\)`
+]
+
+---
+
+## Now that you know what the coefficients relate to, must account for clustering
+
+- Outcomes are clustered within observations! 
+- Several ways that this can be done:
+   - Cluster robust standard errors
+   - Multilevel model
+   - Fixed effects
+
+
+```r
+library(lmerTest)
+ols &lt;- lm(fte ~ state + time + state:time, data = test)
+mlm &lt;- lmer(fte ~ state + time + state:time + (1|sheet), 
+         data = test)
+crse &lt;- lm_robust(fte ~ state + time + state:time,  
+      cluster = sheet, data = test)
+```
+
+---
+
+## Model comparisons
+
+&lt;table style="NAborder-bottom: 0; width: auto !important; margin-left: auto; margin-right: auto;" class="table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; ols &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; MLM &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; CRSE &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; (Intercept) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 23.380*** &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 23.369*** &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 23.380*** &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (1.098) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (1.092) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (1.387) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; stateNJ &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −2.949* &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −2.910* &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −2.949* &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (1.224) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (1.215) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (1.480) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; time &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −2.283 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −2.283* &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −2.283+ &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (1.553) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (1.035) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (1.253) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; stateNJ × time &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.750 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.750* &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.750* &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (1.731) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (1.153) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (1.342) &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;tfoot&gt;&lt;tr&gt;&lt;td style="padding: 0; " colspan="100%"&gt;
+&lt;sup&gt;&lt;/sup&gt; + p &amp;lt; 0.1, * p &amp;lt; 0.05, ** p &amp;lt; 0.01, *** p &amp;lt; 0.001&lt;/td&gt;&lt;/tr&gt;&lt;/tfoot&gt;
+&lt;/table&gt;
+
+- The OLS model does not account for clustering. Note that there is clustering of measures within store (`sheet`) and also clustering within state (NJ vs PA)
+
+
+
+
+???
+library(stargazer)
+stargazer::stargazer(ols, fe, mlm, cr, omit = "sheet", 
+   no.space = T, type = 'text', 
+   star.cutoffs = c(.05,.01,.001), keep.stat = 'n',
+   dep.var.caption = "")
+   
+   library(survey)
+des &lt;- svydesign(ids = ~sheet, data = test)
+cr &lt;- svyglm(fte ~ state + time + state:time, design = des)
+
+---
+
+## Account for clustering
+
+- If not, standard errors will be too **large** (1.73 vs. 1.15 vs. 1.34)
+- Can use 
+   - cluster robust
+   - multilevel modeling
+   - fixed effects (though probably use CRSE as well)
+
+---
+
+## Assumptions
+
+- Common trend (parallel trends assumption)
+   - Trends in outcomes between treated and control are the same prior to the intervention
+   - Cannot show with only two time points though
+   - See [here](https://blogs.worldbank.org/impactevaluations/adversarial-or-lon
+   g-and-squiggly-test-plausibility-parallel-trends-difference)
+   - .blue[THIS IS AN IMPORTANT ASSUMPTION]: without this, you will have biased results-- often, you will have to show in some manner that this assumption is plausible (e.g., often using pretreatment movements in outcome between both groups if data are available)
+   - e.g., both groups should have moved in the same manner without the treatment 
+   
+---
+
+## Assumptions (Parallel trends)
+- AP discuss this: run a DiD in an earlier period-- should not have differences. A test of 'pre-trends'
+   
+   &gt; The most compelling differences-in-differences-type studies report outcomes for treatment and control observations for a period long enough to show the underlying trends, with attention focused on how deviations from trend relate to changes in policy.”
+   
+---
+
+## Assumptions (Parallel trends, cont.)
+   
+- Recent thinking though is that this is not enough (Kahn-Lang &amp; Lang, 2020)
+   
+   &gt; Increasingly, researchers point to a statistically insignificant pre-trend test to argue that they, therefore, accept the null hypothesis of parallel trends. There is no doubt that testing for a common pre-trend plays an important role in validating the parallel trends assumption underlying DiD. However, failing to reject that outcomes in years prior to treatment exhibit parallel trends, should not be confused with establishing the validity of the parallel trends counterfactual.
+   
+.footnote[Kahn-Lang, A., &amp; Lang, K. (2020). The promise and pitfalls of differences-in-differences: Reflections on 16 and pregnant and other applications. Journal of Business &amp; Economic Statistics, 38(3), 613–620. https://doi.org/10.1080/07350015.2018.1546591
+]
+
+- Parallel trends should be discussed in relation to theory-- statistical testing ("it is suggestive..." but not necessarily sufficient) is not enough
+
+---
+
+## Assumptions (Parallel trends, cont.) 
+
+- Does this look plausible to you? (without knowing what is on X and Y)
+
+.center[
+&lt;img src="images/pta.jpg" width="50%" /&gt;
+]
+
+.small[From: Kahn-Lang &amp; Lang, 2020]
+
+???
+
+The two groups in Figure 1 are males (the control group) and females (the experimental group). We have plotted average height in centimeters against age measured in months. For reasons that we well understand (or at least we would if we had studied enough biology), height first diverges between the sexes when females hit puberty and then diverges in the opposite direction when males hit puberty at a later age. Despite exhibiting parallel trends in height prior to T = 135, male and female height should not be expected to continue at the same rate of growth.
+
+
+---
+
+## Assumptions (cont.)
+
+- Common shocks assumption
+   - Any events occurring affect both groups equally
+   - Were there other things going on in either group that could differentially affect outcomes?
+
+
+- There are newer developments in the world of difference-in-difference modeling
+      - There are several articles/tutorials as well on this.
+      - See [here](https://pubmed.ncbi.nlm.nih.gov/33791189/), [here](https://www.annualreviews.org/doi/pdf/10.1146/annurev-publhealth-040617-013507), and [here](https://arxiv.org/pdf/2201.01194.pdf)
+
+---
+
+### To be clear: When comparing two groups on pre-post using a **randomized experiment**, you have two options:
+
+- Using the difference-in-difference
+      - `lm(I(post - pre) ~ treat, data = xx)`
+      - This is the same if we convert a wide dataset to a long format and use what we have discussed
+- Using an ANCOVA with pretest as a covariate
+      - `lm(post ~ treat + pre, data = xx)`
+
+- BOTH methods will yield unbiased results: the advantage is that **the ANCOVA is more powerful**, more efficient than the DiD or change/gain score method
+
+- The differences we have discussed are when the formation of groups is **.blue[NOT]** randomized
+
+- Although I present the DiD results, this does not mean that it is always the best way to analyze your data
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
