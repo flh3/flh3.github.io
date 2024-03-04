@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>A short guide to modeling multilevel data</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Francis L. Huang, PhD" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/rutgers-fonts.css" rel="stylesheet" />
+    <script src="libs/kePrint/kePrint.js"></script>
+    <link href="libs/lightable/lightable.css" rel="stylesheet" />
+    <link rel="stylesheet" href="footer-header.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+class: center, middle
+
+# A short guide to modeling multilevel data
+### Using multilevel models and cluster robust standard errors
+
+### Francis L. Huang
+2022.02.13 (updated: 2024-02-16)
+&lt;svg viewBox="0 0 512 512" style="height:1em;position:relative;display:inline-block;top:.1em;" xmlns="http://www.w3.org/2000/svg"&gt;  &lt;path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"&gt;&lt;/path&gt;&lt;/svg&gt; http://francish.net/
+&lt;svg viewBox="0 0 512 512" style="height:1em;position:relative;display:inline-block;top:.1em;" xmlns="http://www.w3.org/2000/svg"&gt;  &lt;path d="M464 64H48C21.49 64 0 85.49 0 112v288c0 26.51 21.49 48 48 48h416c26.51 0 48-21.49 48-48V112c0-26.51-21.49-48-48-48zm0 48v40.805c-22.422 18.259-58.168 46.651-134.587 106.49-16.841 13.247-50.201 45.072-73.413 44.701-23.208.375-56.579-31.459-73.413-44.701C106.18 199.465 70.425 171.067 48 152.805V112h416zM48 400V214.398c22.914 18.251 55.409 43.862 104.938 82.646 21.857 17.205 60.134 55.186 103.062 54.955 42.717.231 80.509-37.199 103.053-54.947 49.528-38.783 82.032-64.401 104.947-82.653V400H48z"&gt;&lt;/path&gt;&lt;/svg&gt; huangf@missouri.edu
+&lt;svg viewBox="0 0 512 512" style="height:1em;position:relative;display:inline-block;top:.1em;" xmlns="http://www.w3.org/2000/svg"&gt;  &lt;path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"&gt;&lt;/path&gt;&lt;/svg&gt; @flhuang
+
+---
+
+
+
+layout: true
+
+
+&lt;div class="my-header"&gt;&lt;span&gt;Clustered data&lt;/span&gt;
+&lt;/div&gt;
+&lt;div class="my-footer"&gt;&lt;span&gt;Francis Huang / huangf@missouri.edu    
+&lt;/span&gt;&lt;/div&gt;
+
+---
+
+## Why clustered data?
+
+- At times, we randomize whole groups instead of individuals to treatment or control conditions
+      - Assigning a school to receive a whole school intervention (e.g., anti bullying program; Nocentini &amp; Menesini, 2016)
+      - Assigning a community to receive deworming medicine vs. a placebo (Uganda study, Alderman et al., 2006)
+      - Assigning whole classrooms/teachers to experimental conditions (e.g., computer use, tablet, no tech: see Westpoint study, Carter et al., 2017)
+      
+- In those cases, all individuals within a group receive the treatment or control (no variation within a group)
+
+- Often done for logistical, practical considerations
+
+.footnote[Alderman, H., Konde-Lule, J., Sebuliba, I., Bundy, D., &amp; Hall, A. (2006). Effect on weight gain of routinely giving albendazole to preschool children during child health days in Uganda: Cluster randomised controlled trial. BMJ, 333(7559), 1–5. https://doi.org/10.1136/bmj.38877.393530.7C
+
+Nocentini, A., &amp; Menesini, E. (2016). KiVa anti-bullying program in Italy: Evidence of effectiveness in a randomized control trial. Prevention Science, 17(8), 1012–1023.
+]
+
+---
+
+class: center, middle
+
+
+.center[
+### When random assignment is done at the group/cluster level: Referred to as a cluster (or group) randomized controlled trial (CRCT, GRCT, CRT, GRT)
+]
+
+
+.content-box-green[
+.large[Treatment assignment is at the cluster level, not the individual level]
+]
+
+---
+
+
+## Consequence of ignoring the clustered data structure
+
+- If using a CRT and the analysis being done ignores the clustering, run the risk of a type I error or rejecting the null when you should not have
+
+
+.content-box-green[
+"...randomization by cluster, accompanied by
+an analysis appropriate to randomization by
+individual is an exercise in self-deception, however, and should be discouraged" (Cornfield, 1978)
+]
+
+- E.g., several studies were reinvestigated-- accounting for clustering-- many of them had effects that turned out to be .red[statistically nonsignificant] (see Baldwin et al., 2005).
+      
+.footnote[Baldwin, S. A., Murray, D. M., &amp; Shadish, W. R. (2005). Empirically supported treatments or type I errors? Problems with the analysis of data from group-administered treatments. Journal of Consulting and Clinical Psychology, 73(5), 924–935. https://doi.org/10.1037/0022-006X.73.5.924
+
+Cornfield, J. (1978). Randomization by group: A formal analysis. American Journal of Epidemiology, 108(2), 100–102. https://doi.org/10.1093/oxfordjournals.aje.a112592
+
+]
+
+---
+
+## Case study: Alderman et al. (2006) study
+
+Conducted in Eastern Uganda by Alderman et al. The intervention was implemented through Child Health Days (CHD) and comprised albendazole 400 mg every 6 months. 
+- Fifty parishes were identified as having heavy worm loads and randomly allocated to the intervention and control arms. 
+- Over the 3-year program from 2000 to 2003, children in both groups attended 1.74 CHDs on average, with only the intervention group scheduled to be dewormed but both groups receiving additional health services such as vaccination and health promotion. 
+- Participants were pre-school children aged between 1 and 7 years, and deworming became routine and free for everyone shortly after the end of the study.
+
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5841841/
+
+
+---
+
+## Deworming Debunked--
+
+https://www.bmj.com/bmj/section-pdf/187715?path=/bmj/346/7889/Feature.full.pdf 
+
+"In 2006, the BMJ (**IF 2020: 39.9!**) published
+a study led by Harold Alderman, a World Bank
+economist...which
+reported a significant weight gain in Ugandan
+children aged 1-7 years who had been given
+deworming pills.
+ The paper reported that the
+children put on 10% more weight when treated
+twice a year, and 5% when treated once a year.
+
+
+**But the statistical analysis was faulty.** The
+authors had analysed the data on extra weight
+gained as if the 27,955 children had been randomised individually rather than in clusters of
+50 parishes. When this is corrected for, the confidence intervals are wider and the result no longer
+significant.
+
+In response to an email from Garner, Alderman conceded the mistake and a correction has
+now been published on [bmj.com](https://www.bmj.com/rapid-response/2011/11/02/no-significant-difference-weight-gain-after-correction-cluster-design). However, the authors maintain that the study’s main conclusion was based on the multivariable analyses,
+which were adjusted for the study design. The
+BMJ has asked them for clarification."
+
+
+---
+
+## Why do you get higher type I errors?
+
+- .blue[False sense of precision]: results in underestimated standard errors
+      - Software will think that you have a larger n than you really have (e.g., n = 27,000+ vs n = 50)
+      - Smaller standard errors are good, but if smaller than they should be, this is faulty
+      
+- .blue[Observations are *NOT* independent] (within the same cluster, share similarities with each other)
+      - Students in the same school
+      - Individuals within the same parish
+      - Workers within the same organization
+
+
+---
+
+
+## You can also randomize *within* groups
+
+- Randomizing students within schools to be in an intervention or control condition
+- There is still a clustering effect though the randomization is done at the individual level and every cluster has a T vs C condition.
+      
+.content-box-green[
+.large[Can be referred to as a **multisite experiment/trial** (e.g., Huang &amp; Cornell, 2015)]
+]
+
+- If clustering is ignored (just using plain OLS): your standard errors will be correct but will be higher (i.e., .red[inefficient]) compared to other methods that account for clustering. Results in .blue[Type II] errors! 
+
+- The error variance at the group level is not accounted for and results in greater variability resulting in higher standard errors
+
+.footnote[
+Huang, F., &amp; Cornell, D. (2015). The impact of definition and question order on the prevalence of bullying victimization using student self-reports. Psychological Assessment, 27, 1484–1493. https://doi.org/10.1037/pas0000149
+]
+
+---
+
+## Create synthetic dataset for a multisite trial... (not a CRT)
+
+Just run this to create the dataset `msite`:
+
+```r
+set.seed(12345)
+tr &lt;- rbinom(200, 1, .5) #intervention at individual level
+gr &lt;- rep(c(1:10), each = 20) #grouping variable
+e2 &lt;- rep(rnorm(10), each = 20) #error term at l2
+e1 &lt;- rnorm(200) #error term at L1
+y &lt;- tr * .5 + e2 + e1 #some outcome
+msite &lt;- data.frame(y, tr, gr)
+aggregate(y ~ tr, msite, FUN = mean) #means by intervention
+```
+
+```
+  tr          y
+1  0 0.03614083
+2  1 0.31862503
+```
+
+Start here because this is easier to analyze...
+- In each cluster, there are treatment and control units
+
+
+???
+
+.content-box-blue[test]
+.blockquote[test]
+
+
+&lt;svg viewBox="0 0 512 512" style="height:1em;position:relative;display:inline-block;top:.1em;" xmlns="http://www.w3.org/2000/svg"&gt;  &lt;path d="M505.12019,19.09375c-1.18945-5.53125-6.65819-11-12.207-12.1875C460.716,0,435.507,0,410.40747,0,307.17523,0,245.26909,55.20312,199.05238,128H94.83772c-16.34763.01562-35.55658,11.875-42.88664,26.48438L2.51562,253.29688A28.4,28.4,0,0,0,0,264a24.00867,24.00867,0,0,0,24.00582,24H127.81618l-22.47457,22.46875c-11.36521,11.36133-12.99607,32.25781,0,45.25L156.24582,406.625c11.15623,11.1875,32.15619,13.15625,45.27726,0l22.47457-22.46875V488a24.00867,24.00867,0,0,0,24.00581,24,28.55934,28.55934,0,0,0,10.707-2.51562l98.72834-49.39063c14.62888-7.29687,26.50776-26.5,26.50776-42.85937V312.79688c72.59753-46.3125,128.03493-108.40626,128.03493-211.09376C512.07526,76.5,512.07526,51.29688,505.12019,19.09375ZM384.04033,168A40,40,0,1,1,424.05,128,40.02322,40.02322,0,0,1,384.04033,168Z"&gt;&lt;/path&gt;&lt;/svg&gt;
+
+---
+
+## NOTE: With clustered data, you can randomize at the:
+
+- individual level (where it is a multisite randomized trial)
+      - Interest is at the individual predictor
+- group or cluster level
+      - Interest is at the higher level
+      
+** YOU need to know at which level you randomized **
+
+---
+
+
+## What approaches can you use?
+
+- **Standard OLS**
+- Multilevel modeling: `library(nlme)` (or `lmerTest`)
+- OLS with cluster robust standard errors and fixed effects: `library(estimatr)`
+
+
+
+```r
+ols &lt;- lm(y ~ tr, data = msite)
+summary(ols)$coef
+```
+
+```
+              Estimate Std. Error   t value  Pr(&gt;|t|)
+(Intercept) 0.03614083  0.1299573 0.2780978 0.7812275
+tr          0.28248420  0.1736627 1.6266256 0.1054071
+```
+
+Results, are .red[not] statistically significant (*b* = 0.28, *p* &gt; .10).
+
+---
+
+
+## What approaches can you use?
+
+- **Multilevel modeling: `library(nlme)` (or `lmerTest`)**
+   - Run a model with no predictors (a null model; to get the intraclass correlation coefficient)
+
+
+```r
+library(lmerTest)
+nullm &lt;- lmer(y ~ 1 + (1|gr), data = msite) #1 = intercept only
+summary(nullm)
+```
+
+```
+Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: y ~ 1 + (1 | gr)
+   Data: msite
+
+REML criterion at convergence: 591.5
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-2.67983 -0.56441 -0.08421  0.72859  2.85991 
+
+*Random effects:
+* Groups   Name        Variance Std.Dev.
+* gr       (Intercept) 0.5570   0.7463  
+* Residual             0.9946   0.9973  
+Number of obs: 200, groups:  gr, 10
+
+Fixed effects:
+            Estimate Std. Error     df t value Pr(&gt;|t|)
+(Intercept)   0.1943     0.2463 9.0008   0.789     0.45
+```
+
+---
+
+## Get the intraclass correlation coefficient (ICC)
+
+How much variance is attributable to the group level? How similar are observations within the same cluster/group? This is of interest. Greater the number, more important to account for...
+
+```
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ gr       (Intercept) 0.5570   0.7463  
+ Residual             0.9946   0.9973  
+Number of obs: 200, groups:  gr, 10
+```
+
+.56 `\(\rightarrow\)` variance due to the group 
+1 + .56 `\(\rightarrow\)` total variance (1.56)
+
+.center[
+`\(ICC = \frac{\sigma^{2}_{between}}{\sigma^{2}_{between} + \sigma^{2}_{within}} = \frac{.56}{1.56} =.36\)`
+]
+
+**36% of the variance of the outcome due to the grouping or cluster variable.**
+
+If education, for achievement data, ICCs of .15 to .25 are common. For sociobehavioral outcomes, often &lt; .10.
+
+---
+
+## Can also compute this using a package:
+
+
+```r
+performance::icc(nullm)
+```
+
+```
+# Intraclass Correlation Coefficient
+
+    Adjusted ICC: 0.359
+  Unadjusted ICC: 0.359
+```
+
+
+---
+
+## Estimate the model
+   
+
+```r
+mlm &lt;- lmer(y ~ tr + (1|gr), data = msite)
+summary(mlm)$coef
+```
+
+```
+              Estimate Std. Error        df    t value   Pr(&gt;|t|)
+(Intercept) 0.01238367  0.2605810  10.99937 0.04752332 0.96294805
+tr          0.32490770  0.1443325 190.71362 2.25110545 0.02551994
+```
+
+Results .blue[are statistically significant] (*b* = 0.32, *p* = .02)
+
+Often times, you will see folks indicate that MLM is used because standard errors will be underestimated. This can go both ways (can be overestimated *OR* underestimated).
+
+---
+
+## What approaches can you use?
+
+- **OLS with cluster robust standard errors and fixed effects: `library(estimatr)`**
+- FE are fine if you want to control everything at the cluster level-- w/c is fine in this case since there is nothing of interest to us right now at the cluster level
+
+
+
+```r
+library(estimatr)
+crob &lt;- lm_robust(y ~ tr, cluster = gr, fixed_effects = gr, data = msite)
+summary(crob)
+```
+
+```
+
+Call:
+lm_robust(formula = y ~ tr, data = msite, clusters = gr, fixed_effects = gr)
+
+Standard error type:  CR2 
+
+Coefficients:
+   Estimate Std. Error t value Pr(&gt;|t|) CI Lower CI Upper    DF
+tr   0.3288     0.1355   2.427  0.03824  0.02221   0.6354 8.977
+
+Multiple R-squared:  0.3831 ,	Adjusted R-squared:  0.3505
+Multiple R-squared (proj. model):  0.0266 ,	Adjusted R-squared (proj. model):  -0.0249 
+F-statistic (proj. model):  5.89 on 1 and 9 DF,  p-value: 0.03817
+```
+
+---
+
+## A note on the fixed effects approach:
+
+- Aren't all these regression coefficients fixed effects?
+- Unfortunate term
+- Can be obtained by entering dummy coded variables for the clustering variable.
+   - In our example, we have 20 groups: 
+   - This merely involves entering 19 dummy codes that represent the groups/clusters: can just use the `factor()` function
+   - This controls for everything at the group level: both observed and unobserved characteristics
+   - If you are not interested in the group level (and merely want to account for it), this is a good approach to use
+   - If however you are interested in something at the group level, do not use this
+   
+
+---
+
+### Manual FE modeling... (just using `lm`)
+
+.small[Can ignore all the `factor` output (and the intercept). Same results, more cluttered. SE *may* not be correct.]
+
+
+```r
+fe.m &lt;- lm(y ~ tr + factor(gr), data = msite)
+summary(fe.m)
+```
+
+```
+
+Call:
+lm(formula = y ~ tr + factor(gr), data = msite)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-2.42786 -0.58177 -0.01806  0.65312  2.78130 
+
+Coefficients:
+              Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   0.363966   0.230007   1.582 0.115228    
+tr            0.328780   0.144676   2.273 0.024180 *  
+factor(gr)2  -1.474482   0.312061  -4.725 4.48e-06 ***
+factor(gr)3   0.011127   0.312061   0.036 0.971595    
+factor(gr)4  -1.363365   0.313316  -4.351 2.21e-05 ***
+factor(gr)5  -0.004874   0.312731  -0.016 0.987581    
+factor(gr)6  -0.762194   0.313316  -2.433 0.015919 *  
+factor(gr)7  -0.396794   0.314066  -1.263 0.207998    
+factor(gr)8   1.207774   0.313316   3.855 0.000159 ***
+factor(gr)9  -0.736336   0.313316  -2.350 0.019798 *  
+factor(gr)10 -0.018361   0.312312  -0.059 0.953181    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.9866 on 189 degrees of freedom
+Multiple R-squared:  0.3831,	Adjusted R-squared:  0.3505 
+F-statistic: 11.74 on 10 and 189 DF,  p-value: 1.268e-15
+```
+
+---
+
+### There are equivalent ways of getting FE output
+
+- This is the same as group mean centering the level 1 variables
+
+OR 
+
+- The same as leaving the raw variable in but including the group mean
+
+The FE approach is often used to get estimates (the regression coefficient) that is unbiased by anything at the group level.
+
+`\(\rightarrow\)` However, standard errors may still be off... but can be adjusted easily using cluster robust standard errors (CRSEs)
+
+---
+
+## Traditional cluster robust standard errors are effective if there are many clusters (e.g., &gt; 50)
+
+- With fewer clusters, need to use a different type of CRSE.
+- The `estimatr` package automatically includes the CR2 variety which works well even with few clusters (see Huang &amp; Li, 2021)
+      - Drawback is that `lm_robust` works with linear models
+      - Can use the `clubSandwich` package or
+      - use the `CR2` package if using a logistic regression: `devtools::install_github('flh3/CR2')`
+            
+
+
+.footnote[
+Huang, F. L., &amp; Li, X. (2021). Using cluster-robust standard errors when analyzing group-randomized trials with few clusters. Behavior Research Methods. https://doi.org/10.3758/s13428-021-01627-0
+
+]
+---
+
+### Comparison of results
+
+What do we gather from the output? Discuss...
+
+&lt;table style="NAborder-bottom: 0; width: auto !important; margin-left: auto; margin-right: auto;" class="table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; OLS &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; MLM &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; CRSE &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; (Intercept) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.036 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.012 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (0.130) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (0.261) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; tr &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.282 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.325* &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.329* &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (0.174) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (0.144) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (0.135) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; SD (Intercept gr) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.752 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; SD (Observations) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.987 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;tfoot&gt;&lt;tr&gt;&lt;td style="padding: 0; " colspan="100%"&gt;
+&lt;sup&gt;&lt;/sup&gt; + p &amp;lt; 0.1, * p &amp;lt; 0.05, ** p &amp;lt; 0.01, *** p &amp;lt; 0.001&lt;/td&gt;&lt;/tr&gt;&lt;/tfoot&gt;
+&lt;/table&gt;
+
+
+.blockquote[This is fine for a multisite trial-- when the assignment is still at the individual level. **If using a CRT, we cannot use the FE option. JUST REMEMBER that.**]
+
+---
+
+class: center, middle
+
+## Analyzing a cluster randomized trial
+
+---
+
+
+layout: true
+&lt;div class="my-header"&gt;&lt;span&gt;Analyzing a CRT&lt;/span&gt;
+&lt;/div&gt;
+&lt;div class="my-footer"&gt;&lt;span&gt;Francis Huang / huangf@missouri.edu    
+&lt;/span&gt;&lt;/div&gt;
+
+---
+
+#Using project SHARE data
+
+- Project SHARE (Sexual Health And RElationships) was
+a CRT in Scotland carried out to measure the impact of
+a school-based sexual health program (Wight et al.,
+2002). 
+- Despite the assumption that sex education programs can reduce sexual risk-taking in youth, only a
+few CRTs have been conducted on the topic and of
+those that have been conducted, results have shown that
+it is not effective or may be associated with increased
+intent to engage in sexual activity (e.g., Goesling et al.,
+2016).
+- As part of the CRT, 25 schools were randomly
+assigned to the control (n = 12) and intervention (n =
+13) arms of the study. A total of 8430 secondary school
+pupils were recruited and 5854 were followed up after
+two years. 
+- Data for the current example are discussed in
+Hayes and Moulton (2017) and are available for download (dataset: share.rdata) from the Harvard
+Dataverse repository (Moulton, 2015)
+- Dataset is in the `CR2` package: `install.packages("CR2")`
+
+
+---
+
+## From Huang and Li (BRM, 2022)
+
+Although the original study had several outcomes of
+interest (e.g., abortion rate, condom use), the current analysis focused on the impact of the intervention on student
+knowledge of sexual health; M = 4.46, SD = 2.36, range =
+−8 (poor) to 8 (good). 
+
+- The analytic sample only included those participants without missing data (n = 5399, female = 53.7%) on the variables used in the analysis. 
+- In addition to gender, the highest social class **(SC)** of the father or mother based on occupation was obtained (coded 10: I (highest), 20: II, 31: III non-manual, 32: III manual, 40: IV, 50: V lowest), 99: not coded). 
+
+.footnote[
+Huang, F. L., &amp; Li, X. (2022). Using cluster-robust standard errors when analyzing group-randomized trials with few clusters. Behavior Research Methods. https://doi.org/10.3758/s13428-021-01627-0
+
+]
+
+---
+
+## Load data
+
+
+```r
+library(CR2)
+data(sharedat)
+head(sharedat)
+```
+
+```
+  school sex arm kscore idno sc     zscore
+1      1   F   1      3    1 31 -0.6179265
+2      1   F   1      5    2 31  0.2292511
+3      1   F   1      4    3 99 -0.1943377
+4      1   F   1      4    4 20 -0.1943377
+5      1   F   1      6    5 20  0.6528398
+6      1   M   1      8    6 20  1.5000174
+```
+
+---
+
+## Using OLS
+
+
+```r
+m2 &lt;- lm(kscore ~ arm, data = sharedat)
+summary(m2)
+```
+
+```
+
+Call:
+lm(formula = kscore ~ arm, data = sharedat)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-10.7722  -1.1602   0.2278   1.8398   3.8398 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  4.16022    0.04452  93.443   &lt;2e-16 ***
+arm          0.61199    0.06374   9.601   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 2.341 on 5397 degrees of freedom
+Multiple R-squared:  0.01679,	Adjusted R-squared:  0.01661 
+F-statistic: 92.18 on 1 and 5397 DF,  p-value: &lt; 2.2e-16
+```
+
+---
+
+## Using MLM (to get the ICC)
+
+
+```r
+nullm &lt;- lmer(kscore ~ 1 + (1|school), data = sharedat)
+summary(nullm)
+```
+
+```
+Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: kscore ~ 1 + (1 | school)
+   Data: sharedat
+
+REML criterion at convergence: 24440
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-4.6849 -0.6024  0.0639  0.6939  1.9533 
+
+*Random effects:
+* Groups   Name        Variance Std.Dev.
+* school   (Intercept) 0.2232   0.4725  
+* Residual             5.3557   2.3142  
+Number of obs: 5399, groups:  school, 25
+
+Fixed effects:
+            Estimate Std. Error      df t value Pr(&gt;|t|)    
+(Intercept)   4.4029     0.1003 23.8249   43.89   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+---
+   
+## Get the ICC
+   
+
+```r
+performance::icc(nullm)
+```
+
+```
+# Intraclass Correlation Coefficient
+
+    Adjusted ICC: 0.040
+  Unadjusted ICC: 0.040
+```
+
+We often use the ICC to provide some context how important the grouping factor is. In this case, not so big-- but can make a difference in other contexts.
+
+---
+
+## Just with treatment indicator (look at the difference from the OLS SE)
+
+
+```r
+m3 &lt;- lmer(kscore ~ arm + (1|school), data = sharedat)
+summary(m3)$coef
+```
+
+```
+             Estimate Std. Error       df   t value     Pr(&gt;|t|)
+(Intercept) 4.1344493  0.1212542 20.83410 34.097373 9.234014e-20
+arm         0.5312738  0.1694155 21.37516  3.135921 4.918703e-03
+```
+
+---
+
+## Full model (w/covariates; `sc` = social class)
+
+
+```r
+m4 &lt;- lmer(kscore ~ arm + sex + factor(sc) + (1|school), data = sharedat)
+summary(m4)$coef
+```
+
+```
+               Estimate Std. Error         df   t value     Pr(&gt;|t|)
+(Intercept)   4.0462707 0.15172922   65.42704 26.667709 7.283152e-37
+arm           0.5127034 0.15743943   20.89449  3.256512 3.791484e-03
+sexF          0.8709950 0.06191852 5371.85129 14.066794 3.663753e-44
+factor(sc)20 -0.2171446 0.11172915 5388.88929 -1.943491 5.200889e-02
+factor(sc)31 -0.3166734 0.12034977 5359.70988 -2.631275 8.530872e-03
+factor(sc)32 -0.5306927 0.13238771 5318.16884 -4.008626 6.190889e-05
+factor(sc)40 -0.5479314 0.15815883 5333.41024 -3.464437 5.355234e-04
+factor(sc)50 -0.8556685 0.21772899 5378.67260 -3.929971 8.602223e-05
+factor(sc)99 -1.0063062 0.15459098 5355.76443 -6.509476 8.229083e-11
+```
+
+---
+
+## NOTE: you can get an pseudo R&lt;sup&gt;2&lt;/sup&gt; for multilevel models
+
+
+```r
+performance::r2_nakagawa(m4)
+```
+
+```
+# R2 for Mixed Models
+
+  Conditional R2: 0.081
+     Marginal R2: 0.058
+```
+
+This results in a marginal and a conditional R2. The conditional will always be = or &gt; than the marginal (considers the random effects, marginal only uses the fixed effects).
+
+---
+
+## Using CRSE
+
+
+```r
+m5 &lt;- lm_robust(kscore ~ arm + sex + factor(sc), cluster = school, 
+ data = sharedat) #NO FIXED EFFECTS OPTION
+summary(m5)
+```
+
+```
+
+Call:
+lm_robust(formula = kscore ~ arm + sex + factor(sc), data = sharedat, 
+    clusters = school)
+
+Standard error type:  CR2 
+
+Coefficients:
+             Estimate Std. Error t value  Pr(&gt;|t|) CI Lower CI Upper    DF
+(Intercept)    4.1605    0.15648  26.588 1.114e-12   3.8223   4.4987 12.94
+arm            0.5872    0.14640   4.011 6.678e-04   0.2821   0.8923 20.33
+sexF           0.8594    0.06953  12.361 3.574e-11   0.7149   1.0039 21.26
+factor(sc)20  -0.2713    0.09387  -2.890 1.234e-02  -0.4736  -0.0691 13.37
+factor(sc)31  -0.4447    0.12246  -3.632 2.321e-03  -0.7048  -0.1846 15.62
+factor(sc)32  -0.6591    0.16040  -4.109 6.320e-04  -0.9956  -0.3227 18.41
+factor(sc)40  -0.7066    0.17108  -4.130 4.793e-04  -1.0625  -0.3507 20.91
+factor(sc)50  -0.9809    0.26765  -3.665 1.766e-03  -1.5432  -0.4187 18.04
+factor(sc)99  -1.1543    0.16234  -7.111 9.264e-07  -1.4941  -0.8145 18.98
+
+Multiple R-squared:  0.0647 ,	Adjusted R-squared:  0.06331 
+F-statistic:  37.6 on 8 and 24 DF,  p-value: 9.741e-12
+```
+
+---
+
+
+### Comparison of results
+
+&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; OLS &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; MLM &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; CRSE &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; (Intercept) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4.160*** (0.045) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4.046*** (0.152) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4.161*** (0.156) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; arm &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.612*** (0.064) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.513** (0.157) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.587*** (0.146) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; sexF &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.871*** (0.062) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.859*** (0.070) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; factor(sc)20 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −0.217+ (0.112) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −0.271** (0.094) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; factor(sc)31 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −0.317** (0.120) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −0.445*** (0.122) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; factor(sc)32 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −0.531*** (0.132) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −0.659*** (0.160) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; factor(sc)40 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −0.548*** (0.158) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −0.707*** (0.171) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; factor(sc)50 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −0.856*** (0.218) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −0.981*** (0.268) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; factor(sc)99 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −1.006*** (0.155) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −1.154*** (0.162) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; SD (Observations) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.262 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; SD (Intercept school) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.358 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+
+### Comparison of results (cont.)
+
+1. The OLS SE are too low (SE = .06)
+      - In this case, does not make a substantive difference
+2. The MLM (.16) and CRSE (.15) are more similar to each other
+3. The MLM and the CRSE are appropriate to report
+
+
+```r
+sd(sharedat$kscore) #overall
+```
+
+```
+[1] 2.36078
+```
+
+```r
+aggregate(kscore ~ arm, sharedat, sd) #sd for each group
+```
+
+```
+  arm   kscore
+1   0 2.386499
+2   1 2.292454
+```
+
+- Treatment: Around .50 points higher. 
+- SD = 2.36. 
+- If using Glass's delta uses, the control group SD: .5 / 2.39 = .21.
+
+---
+
+layout: true
+&lt;div class="my-header"&gt;&lt;span&gt;Summary&lt;/span&gt;
+&lt;/div&gt;
+&lt;div class="my-footer"&gt;&lt;span&gt;Francis Huang / huangf@missouri.edu    
+&lt;/span&gt;&lt;/div&gt;
+
+---
+
+## In summary
+
+- Accounting for the clustered nature of your data is important
+      - Can result in increased Type I or II errors
+      
+.content-box-green[.center[
+.large[*"As ye randomize, so shall ye analyze"* (Senn, 2004)]
+]]
+      
+- Two popular (correct and acceptable) approaches: 
+      - Multilevel modeling
+      - Using cluster robust standard errors (w/group fixed effects depending on the situation)
+         - Depends if you have a multisite trial or a cluster randomized trial
+
+
+
+.footnote[
+Senn, S. (2004). Controversies concerning randomization and additivity in clinical trials. Statistics in Medicine, 23(24), 3729–3753. https://doi.org/10.1002/sim.2074
+]
+
+
+---
+
+### Tennessee Project STAR (Student Teacher Achievement Ratio)
+
+- Four-year longitudinal class-size study funded by the Tennessee General Assembly and conducted by the State Department of Education (1985-89)
+- 7,000+ students in 79 schools were randomly assigned into one of three interventions: 
+  + small class (13 to 17 students per teacher), 
+  + regular class (22 to 25 students per teacher), and
+  + regular-with-aide class (22 to 25 students with a full-time teacher's aide)
+- Classroom teachers randomly assigned to the classes they would teach
+- Initiated as the students entered school in kindergarten and continued through third grade.
+
+- Data available [here](https://dataverse.harvard.edu/dataset.xhtml?persistentId=hdl:1902.1/10766)
+
+.footnote[
+C.M. Achilles; Helen Pate Bain; Fred Bellott; Jayne Boyd-Zaharias; Jeremy Finn; John Folger; John Johnston; Elizabeth Word, 2008, "Tennessee's Student Teacher Achievement Ratio (STAR) project", https://doi.org/10.7910/DVN/SIWH9F, Harvard Dataverse, V1, UNF:3:Ji2Q+9HCCZAbw3csOdMNdA== [fileUNF]
+]
+
+---
+
+## Many have analyzed/reanalyzed the data
+
+- Krueger, A. (1999). Quarterly Journal of Econ
+- Hanushek, E. (1999. Educ Eval and Policy Analysis
+- Nye, Hedges, Konstatopoulos (2000/2004)
+- Schazenbach, D. (2007)
+
+---
+
+## Known issues (Schazenbach, 2007)
+
+- New students were randomly added to classes as they came in over the years
+- Parents complained about the fairness and student were rerandomized again in the first grade
+- Male, low income, African American students were more likely to exit and enter into the program (high mobility) (45% exited; but 45% entered after K as well)
+- 10% of students were moved from one class to another in a nonrandom manner (mostly due to student misbehavior and not parent requests)
+- Only manipulated class size: no new training, curriculum, or any other intervention
+- Despite these, different forms of analysis (ITT) have shown effects to be robust (~0.20 SD per year for small class size only vs all others)
+
+---
+
+
+## If time permits... using project STAR data
+
+- You've read the article, know what this is about already
+
+
+```r
+library(mlmRev)
+data(star)
+library(dplyr)
+konly &lt;- filter(star, gr == 'K') #stick with kindergarteners
+table(konly$cltype) #classtype
+```
+
+```
+
+small   reg reg+A 
+ 1900  2194  2231 
+```
+
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
