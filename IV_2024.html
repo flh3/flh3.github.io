@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Instrumental variables in educational research</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Francis L. Huang, PhD" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/rutgers-fonts.css" rel="stylesheet" />
+    <script src="libs/kePrint/kePrint.js"></script>
+    <link href="libs/lightable/lightable.css" rel="stylesheet" />
+    <link rel="stylesheet" href="footer-header.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+class: left, middle
+
+## Instrumental variables in educational research
+### Dealing with noncompliance
+
+Francis L. Huang, PhD
+&lt;svg viewBox="0 0 512 512" style="height:1em;position:relative;display:inline-block;top:.1em;" xmlns="http://www.w3.org/2000/svg"&gt;  &lt;path d="M502.3 190.8c3.9-3.1 9.7-.2 9.7 4.7V400c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V195.6c0-5 5.7-7.8 9.7-4.7 22.4 17.4 52.1 39.5 154.1 113.6 21.1 15.4 56.7 47.8 92.2 47.6 35.7.3 72-32.8 92.3-47.6 102-74.1 131.6-96.3 154-113.7zM256 320c23.2.4 56.6-29.2 73.4-41.4 132.7-96.3 142.8-104.7 173.4-128.7 5.8-4.5 9.2-11.5 9.2-18.9v-19c0-26.5-21.5-48-48-48H48C21.5 64 0 85.5 0 112v19c0 7.4 3.4 14.3 9.2 18.9 30.6 23.9 40.7 32.4 173.4 128.7 16.8 12.2 50.2 41.8 73.4 41.4z"&gt;&lt;/path&gt;&lt;/svg&gt; huangf@missouri.edu
+&lt;svg viewBox="0 0 512 512" style="height:1em;position:relative;display:inline-block;top:.1em;" xmlns="http://www.w3.org/2000/svg"&gt;  &lt;path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"&gt;&lt;/path&gt;&lt;/svg&gt; @huangf
+&lt;svg viewBox="0 0 496 512" style="height:1em;position:relative;display:inline-block;top:.1em;" xmlns="http://www.w3.org/2000/svg"&gt;  &lt;path d="M336.5 160C322 70.7 287.8 8 248 8s-74 62.7-88.5 152h177zM152 256c0 22.2 1.2 43.5 3.3 64h185.3c2.1-20.5 3.3-41.8 3.3-64s-1.2-43.5-3.3-64H155.3c-2.1 20.5-3.3 41.8-3.3 64zm324.7-96c-28.6-67.9-86.5-120.4-158-141.6 24.4 33.8 41.2 84.7 50 141.6h108zM177.2 18.4C105.8 39.6 47.8 92.1 19.3 160h108c8.7-56.9 25.5-107.8 49.9-141.6zM487.4 192H372.7c2.1 21 3.3 42.5 3.3 64s-1.2 43-3.3 64h114.6c5.5-20.5 8.6-41.8 8.6-64s-3.1-43.5-8.5-64zM120 256c0-21.5 1.2-43 3.3-64H8.6C3.2 212.5 0 233.8 0 256s3.2 43.5 8.6 64h114.6c-2-21-3.2-42.5-3.2-64zm39.5 96c14.5 89.3 48.7 152 88.5 152s74-62.7 88.5-152h-177zm159.3 141.6c71.4-21.2 129.4-73.7 158-141.6h-108c-8.8 56.9-25.6 107.8-50 141.6zM19.3 352c28.6 67.9 86.5 120.4 158 141.6-24.4-33.8-41.2-84.7-50-141.6h-108z"&gt;&lt;/path&gt;&lt;/svg&gt; https://francish.net
+
+.footnote[2019.04.16 / Updated 2024-02-08]
+
+
+---
+
+
+&lt;div class="my-header"&gt;&lt;span&gt;Noncompliance&lt;/span&gt;
+&lt;/div&gt;
+&lt;div class="my-footer"&gt;&lt;span&gt;Francis Huang / huangf@missouri.edu    
+&lt;/span&gt;&lt;/div&gt;
+
+
+## Instrumental variable (IV)&lt;sup&gt;1&lt;/sup&gt; estimation... 
+- Is a commonly used technique among econometricians to estimate causal effects- very cliche!
+- Described as the "most powerful weapon" in an economist's arsenal of statistical tools (Angrist &amp; Pischke, 2008, p. 114)
+- However: *not well understood!* So many tutorials in
+  + developmental psych (Gennetian, Magnuson, &amp; Morris, 2008)
+  + social work (Rose &amp; Stone, 2011)
+  + medicine (Baiocci, Cheng, &amp; Small, 2014)
+  + political science (Sovey &amp; Green, 2011)
+  + criminology (Angrist, 2006)
+  + education (Pokropek, 2016)
+- Much has to do with the language and notation
+- Would benefit by starting off with a simple case that is easily understood
+- Not often used by education or psychology researchers!
+
+
+--
+
+.center[
+#### Discussed today in the context of an experiment with imperfect compliance
+]
+
+.footnote[&lt;sup&gt;1&lt;/sup&gt;Based on Huang, F. (2018). Using instrumental variable estimation to evaluate randomized experiments with imperfect compliance. *Practical Assessment, Research, &amp; Evaluation, 23*(2). Retrieved from https://scholarworks.umass.edu/pare/vol23/iss1/2/]
+
+???
+
+Using psycnet: searching for 'instrumental variables' only showed **9** article mentioning this
+a search on eric.ed.gov showed 224 matches in the last 20 years
+used primarily by economists (e.g., Econ of Ed Review, Ed Econ, J of Econ Ed, J of Pol Analysis)
+    
+---
+
+class: center, middle
+
+## Understanding imperfect compliance with RCTs
+
+---
+
+layout: true
+&lt;div class="my-header"&gt;&lt;span&gt;Noncompliance&lt;/span&gt;
+&lt;/div&gt;
+&lt;div class="my-footer"&gt;&lt;span&gt;Francis Huang / huangf@missouri.edu    
+&lt;/span&gt;&lt;/div&gt;
+
+---
+
+## What am I refererring to with imperfect compliance? 
+
+- We know that experiments/randomized control trials are referred to as the gold standard in evaluation research
+- Participants are randomly assigned to treatment or control groups
+  + Randomization creates equal groups based on observed and unobserved variables
+- However, not everyone assigned to the treatment may take the treatment
+  + not everyone assigned to the control may remain in the control group
+- We cannot force individuals to take the treatment
+  + Best we can do is encourage 
+  + Sometimes, referred to as randomized promotional / encouragement designs
+  
+---
+
+## Real world examples of imperfect compliance:
+
+- Individuals provided housing vouchers to move from high to low poverty neighborhoods might not move (Leventhal &amp; Brooks-Gunn, 2003): **[Moving to Opportunity](https://www.npr.org/2019/08/30/756028025/episode-937-moving-to-opportunity)** see [article](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1448013/)
+
+--
+- Police officers randomized to arrest or separate domestic assault suspects might not comply (Sherman &amp; Berk, 1984): **Minneapolis Domestic Violence Experiment**
+
+--
+- Subject assigned a medical treatment do not take it while control group participants find alternative medication (Sussman &amp; Hayward, 2010)
+
+--
+- Teachers assigned to attend professional development training as a treatment do not show up
+
+---
+--- 
+
+#### Case: Minneapolis Domestic Violence Experiment (MDVE; [Sherman &amp; Berk, 1981-82](https://www.policefoundation.org/publication/the-minneapolis-domestic-violence-experiment/)): Outcome of interest (recidivism: tendency to reoffend)
+
+- Evaluated the police response to domestic violence reports 
+- Police may be reluctant to get involved for various reasons 
+- Design applied only to simple misdemeanors where both suspect and victim were present when the police arrived
+  + Only included cases where the police were empowered to make a decision (but not required to make an arrest- but must have probable cause)
+- Each officer carried a pad of color-coded report forms. Each time an officer encountered a situation that fit the experimental criteria, they were to take action as indicated by the color-coded form (which were assigned by lottery assignment) 
+  + To monitor the consistency of lottery assignment, research staff rode on patrols for a sample of evenings (read the article for further details)
+- After qualifying a certain case, police officers were provided three randomized approaches that they could use:
+  1. Send abuser away for 8 hours
+  2. Advice and mediation of disputes
+  3. Make an arrest
+
+
+???
+
+(e.g., might be viewed as a private matter, may not want to get involved).
+
+---
+
+## Commonly used example in education: Charter schools
+
+- Cannot randomly assign kids to schools
+- Can do this via lottery (for oversubscribed schools): a form of random assignment
+- Not everyone who wins the lottery (see Waiting for Superman clip) goes to the school 
+- At the same time, some of those who did not win still wind up in the school
+- Based on a study of charter school evaluations (Clark, Gleason, Tuttle, &amp; Silverberg, 2015): 
+  + 78% of students offered a seat take the seat 
+  + 15% of students not offered still attend 
+- Although the assignment was random, the takeup was not- may result in bias:
+  + e.g., parents of enrolled students might be more motivated and effects might come from motivation, not school attendance
+
+---
+
+## Running example: Experiment design:
+
+- 200 college students
+  + 100 randomly assigned to treatment
+  + 100 randomly assigned to control
+- Treatment group: told to attend a seminar and at the end, receive between 7 to 13 dollars:
+  + On average, gave out **$10**
+- Control group: are not told to attend the seminar
+- On the day of the seminar 78% assigned to treatment show up
+- 9% in the control hear about it and attend as well!
+- Experimenter, maybe unwisely, does not check if the person was in the treatment or control group and everyone gets their cash
+- What then is the impact of the treatment in terms of dollars received?
+
+---
+
+## Review the data
+
+
+```r
+dat &lt;- read.csv('https://raw.githubusercontent.com/flh3/pubdata/main/IV/ivexample.csv')
+#devtools::install_github("dcomtois/summarytools")
+library(summarytools) #for ctable
+ctable(dat$assign, dat$takeup)
+```
+
+```
+Cross-Tabulation, Row Proportions  
+assign * takeup  
+Data Frame: dat  
+
+-------- -------- ------------- ------------ --------------
+           takeup             0            1          Total
+  assign                                                   
+       0             91 (91.0%)    9 ( 9.0%)   100 (100.0%)
+       1             22 (22.0%)   78 (78.0%)   100 (100.0%)
+   Total            113 (56.5%)   87 (43.5%)   200 (100.0%)
+-------- -------- ------------- ------------ --------------
+```
+
+---
+
+## How much is earned based on treatment assignment?
+
+Analyze based on the treatment assignment (`assign`): that is what was randomized
+- Known as the **intention to treat (ITT)** estimate
+  + unbiased effect of assignment
+  + noncompliance is *NOT* important
+- Using the assigned condition as the predictor of interest is fine- (A is random)- and this ignores compliance entirely
+- Preserves randomization
+- May be of interest in the real world where the best we can do is encourage people to take the treatment 
+- If everyone complies, no problem!
+- BUT with noncompliance, we cannot estimate the Average Treatment Effect (ATE)
+  + need to specify the treatment effect for a group of participants
+
+---
+
+## Can just look at the difference between the two assignment conditions (i.e., the ITT estimate)
+
+
+```r
+library(dplyr)
+dat %&gt;% group_by(assign) %&gt;%
+  summarise(outcome = mean(y))
+```
+
+```
+# A tibble: 2 x 2
+  assign outcome
+   &lt;int&gt;   &lt;dbl&gt;
+1      0    0.9 
+2      1    7.85
+```
+
+```r
+m1 &lt;- lm(y ~ assign, data = dat)
+summary(m1)$coef %&gt;% round(3)
+```
+
+```
+            Estimate Std. Error t value Pr(&gt;|t|)
+(Intercept)     0.90      0.367   2.452    0.015
+assign          6.95      0.519  13.388    0.000
+```
+.center[
+## But we just didn't give out ~$7 - 8 on average?]
+
+---
+
+layout: true
+&lt;div class="my-header"&gt;&lt;span&gt;Compliance Styles&lt;/span&gt;
+&lt;/div&gt;
+&lt;div class="my-footer"&gt;&lt;span&gt;Francis Huang / huangf@missouri.edu    
+&lt;/span&gt;&lt;/div&gt;
+
+---
+
+
+class: center, middle
+
+## Types of compliance
+
+---
+
+
+## Before proceeding, need to understand general compliance styles
+
+&lt;img src="imgs/Slide1.JPG" width="120%" /&gt;
+
+---
+
+## Before proceeding, need to understand general compliance styles
+
+&lt;img src="imgs/Slide2.JPG" width="120%" /&gt;
+
+---
+
+## Before proceeding, need to understand general compliance styles
+
+&lt;img src="imgs/Slide3.JPG" width="120%" /&gt;
+
+---
+
+## Before proceeding, need to understand general compliance styles
+
+&lt;img src="imgs/Slide4.JPG" width="120%" /&gt;
+Can we distinguish between compliers and never takers?
+---
+
+## Before proceeding, need to understand general compliance styles
+
+&lt;img src="imgs/Slide5.JPG" width="120%" /&gt;
+
+---
+
+## Before proceeding, need to understand general compliance styles
+
+&lt;img src="imgs/Slide6.JPG" width="120%" /&gt;
+Defiers do the opposite of what they told
+
+---
+
+## Before proceeding, need to understand general compliance styles
+
+&lt;img src="imgs/Slide7.JPG" width="120%" /&gt;
+The **monotonicity** assumption assumes this away though (no defiers; Angrist &amp; Pischke, 2014 `\(\rightarrow\)` rare or nonexistent)
+---
+
+
+### Random assignment ensures* that there is an equal proportion in both groups
+
+&lt;img src="imgs/compliers/Slide1.JPG" width="120%" /&gt;
+.footnote[
+&lt;sup&gt;*&lt;/sup&gt;Probably a strong word.
+]
+---
+
+
+### First assume no defiers: Remember the *monotonicity* assumption (required)
+
+&lt;img src="imgs/compliers/Slide2.JPG" width="120%" /&gt;
+---
+
+
+### In the assigned treatment group (A = 1), we know some of the compliers (but not the always takers) and we know the never takers
+
+&lt;img src="imgs/compliers/Slide3.JPG" width="120%" /&gt;
+
+---
+
+### In the assigned control group, we know  some of the compliers (but not the never takers) and we know the always takers
+
+&lt;img src="imgs/compliers/Slide4.JPG" width="120%" /&gt;
+
+---
+
+### Since we know the never takers and always takers in each group, we assume the same proportion in each group
+
+&lt;img src="imgs/compliers/Slide5.JPG" width="120%" /&gt;
+- Compliers in treatment group: received treatment - always takers
+- Compliers in control group: did not receive treatment - never takers
+
+
+---
+
+## Review the data: Part 2
+
+What percent of compliers do we have with our data?
+
+
+```r
+ctable(dat$assign, dat$takeup)
+```
+
+```
+Cross-Tabulation, Row Proportions  
+assign * takeup  
+Data Frame: dat  
+
+-------- -------- ------------- ------------ --------------
+           takeup             0            1          Total
+  assign                                                   
+       0             91 (91.0%)    9 ( 9.0%)   100 (100.0%)
+       1             22 (22.0%)   78 (78.0%)   100 (100.0%)
+   Total            113 (56.5%)   87 (43.5%)   200 (100.0%)
+-------- -------- ------------- ------------ --------------
+```
+
+- 22% never takers
+- 9% always takers
+- 100 - 22 - 9 = 69% compliers in each group
+- In our case, we have [two-sided noncompliance](https://www.hhs.gov/ash/oah/sites/default/files/estimating-program-effects-on-program-participants-brief.pdf) (can have one sided noncompliance if we bar control assigned individuals from attending the seminar)
+
+---
+
+### So what do we do with the % of compliers? Get the Local Average Treatment Effect (LATE)*
+
+--
+
+- We know the ITT
+  + This is a causal effect but 'discounted' as a result of noncompliance
+  + May want to get *LATE* (local to compliers)
+      + also known as the complier average causal effect (*CACE*)
+      + complier average treatment effect (*CATE*)
+      + or treatment on the treated (*TOT*; only if there are **no crossovers** or always-takers from the control group)
+
+--
+
+- Example of how discounting might work:
+  + You purchase a item for $42.50. 
+  + You paid 85% of the price (or discounted by 15%)
+  + What was the full price then?
+  + 42.50 / .85 = $50 (or ITT / % compliers)
+  
+--
+
+- Going back to our example:
+  + ITT = 6.95
+  + Compliance rate: .69
+  + **LATE = 6.95 / .69 = 10.07**
+  
+*Imbens, G. (2010). Better LATE than nothing.
+---
+
+#### Another example: from Gertler, P. J., Martinez, S., Premand, P., Rawlings, L. B., &amp; Vermeersch, C. M. (2016). *Impact 	evaluation in practice (2nd ed.)*. Washington, DC: World Bank Publications. 
+
+.center[
+&lt;img src="imgs/examplebook.jpg" width="69%" /&gt;
+]
+---
+
+layout: true
+&lt;div class="my-header"&gt;&lt;span&gt;IVs&lt;/span&gt;
+&lt;/div&gt;
+&lt;div class="my-footer"&gt;&lt;span&gt;Francis Huang / huangf@missouri.edu    
+&lt;/span&gt;&lt;/div&gt;
+
+---
+
+class: center, middle
+
+## Using instrumental variables
+### So what does this all have to do with IVs?
+
+---
+
+### To estimate a treatment effect, we can use our usual formula:
+
+- Assume in this case that `\(X\)` is the treatment (1 = treatment, 0 = control)
+
+`$$Y_i = \beta_0 + \beta_1X_i + \varepsilon_i$$`
+- We know that the standard equation for the slope is:
+`$$\beta_1 = Cov(Y, X) / Var(X)$$`
+- Substituting Y above and using covariance algebra (for the numerator):
+`$$Cov(Y, X) = Cov(\beta_0 + \beta_1X_i + \varepsilon_i, X)$$`
+--
+
+`$$= Cov(\beta_0, X) + Cov(\beta_1X, X) + Cov(\varepsilon, X)$$`
+- The first term is zero (since covariance with a constant, `\(\beta_0\)`, is zero)
+- The second term can be written as: `\(\beta_1Cov(X,X) = \beta_1Var(X)\)`
+- So, `\(Cov(Y,X) = \beta_1Var(X) + Cov(\varepsilon, X)\)` or `\(\sigma_{YX} = \beta_1\sigma^2_X + \sigma_{\varepsilon X}\)`
+- Dividing all terms in the equation by `\(\sigma^2_X\)` results in `$$\frac{\sigma_{YX}}{\sigma^2_X} = \beta_1 + \frac{\sigma_{\varepsilon X}}{\sigma^2_X}$$`
+
+---
+
+## The treatment effect is only unbiased when 
+
+
+`$$\sigma_{\varepsilon X} = 0$$`
+since:
+
+`$$\frac{\sigma_{YX}}{\sigma^2_X} = \beta_1 + \frac{\sigma_{\varepsilon X}}{\sigma^2_X}$$`
+- Which is why residual independence is so important!
+  + If the residual `\(\varepsilon\)` is correlated with X, then biased
+  + The larger the covariance with the residual, the larger the bias
+  + For example, if X is takeup, takeup might also be driven by how motivated the person is to attend... (i.e., takeup is not random)
+- What if we had a variable (**Z**, our **instrumental variable** or instrument for short) that was:
+  + Related to X (Z causes X) but also
+  + Related to Y but only through X:
+      + `\(Z \rightarrow X \rightarrow Y\)`
+  
+---
+
+#### The relationship of the instrument (Z) and the outcome (Y) can be written as:
+
+`$$Cov(Y, Z) = Cov(\beta_0 + \beta_1X_i + \varepsilon_i, Z)$$`
+`$$Cov(Y, Z) = \beta_1Cov(X, Z) + Cov(\varepsilon, Z)$$`
+
+To get `\(\beta_1\)`, divide all terms by `\(Cov(X, Z)\)`:
+
+`$$\frac{Cov(Y, Z)}{Cov(X, Z)} = \beta_1 + \frac{Cov(\varepsilon, Z)}{Cov(X, Z)}$$`
+
+Since **A** is random (or as good as random), we can convincingly assume that:
+
+`$$\frac{Cov(\varepsilon, Z)}{Cov(X, Z)} = 0$$`
+So:
+`$$\beta_1 = \frac{Cov(Y, Z)}{Cov(X, Z)}$$`
+- This is our **instrumental variable estimator**
+
+---
+
+## Known as the methods of moments instrumental variable estimator
+
+- ... since variance/covariance is referred to as the second moment
+
+`$$\beta_1^{IV} = \frac{Cov(Y, Z)}{Cov(X, Z)}$$`
+
+```r
+cov(dat$y, dat$assign) / cov(dat$takeup, dat$assign)
+```
+
+```
+[1] 10.07246
+```
+
+---
+
+
+### An instrumental variable (or instrument Z)...
+
+- Is as good as random (**Independence assumption**): such as using random assignment: the outcome `\(Y = \beta_0 + \beta_1X + \varepsilon\)`
+- `\(Cov(Z, \varepsilon) = 0\)`; exogenous- untestable
+- `\(Cov(Z, X) \ne 0\)`: Correlated with X (the treatment)
+  + Z (the instrument) should cause X (doesn't have to be completely)
+  + Z is not directly related to Y, only through X: the **Excludability assumption**
+
+.pull-left[
+&lt;img src="imgs/zinst.jpg" width="70%" /&gt;
+]
+.pull-right[
+&lt;img src="imgs/instr2.jpg" width="70%" /&gt;
+]
+- It's not the offer of the treatment that causes the outcome, it's the treatment takeup
+- Although this looks like a mediation model: it is not a standard mediation model
+
+---
+
+## Instrument should push/encourage units to take X 
+
+- `\(Z \rightarrow X\)` (e.g., offer should lead to takeup of the treatment)
+  + Does not have to be 100%
+- X can be predicted by Z: cov(X, Z) / var(Z)
+- Using our experiment:
+
+
+```r
+cov(dat$assign, dat$takeup)/var(dat$assign)
+```
+
+```
+[1] 0.69
+```
+
+- This is referred to as the **first stage regression**
+- The push should only be in one direction: again, **no defiers** (the **Monotonicity assumption**)
+
+
+```r
+stage1 &lt;- lm(takeup ~ assign, data = dat)
+summary(stage1)$coef
+```
+
+```
+            Estimate Std. Error   t value     Pr(&gt;|t|)
+(Intercept)     0.09 0.03578132  2.515279 1.268880e-02
+*assign          0.69 0.05060243 13.635708 2.734275e-30
+```
+- NOTE: the 69% is our compliance rate
+- Should have a strong instrument: an **F &gt; 10 or t &gt; 3** [this is a testable assumption]
+
+---
+
+## The instrumental variable estimates the Local Average Treatment Effect (LATE)
+
+- Does not estimate the effect for always takers or never takers- only compliers
+
+.center[
+`\(LATE (\lambda) = \frac{\rho}{\phi} = E(Y_{1i} - Y_{0i} | C_i = 1)\)`&lt;BR&gt;
+`\(\rho = cov(Y, Z)/ var(Z) \rightarrow\)` the ITT&lt;BR&gt;
+`\(\phi = cov(X, Z)/ var(Z) \rightarrow\)` the compliance rate / the first stage&lt;BR&gt;
+]
+
+- Since both `\(\rho\)` and `\(\phi\)` have the same denominator, can write this as (shown earlier):
+  + cov(Y, Z) / cov(X, Z)
+
+
+```r
+cov(dat$y, dat$assign) / cov(dat$assign, dat$takeup)
+```
+
+```
+[1] 10.07246
+```
+
+---
+
+
+## The second stage regression predicts the outcome Y with the **PREDICTED** values of X or `\(\hat{X}\)`
+
+- This is what makes this different from a mediation model (where path coefficients are multipled to get a total effect)
+  + The diagram is similar but they are different
+- The `fitted` function generates the predicted values
+
+
+```r
+stage2 &lt;- lm(y ~ fitted(stage1), data = dat)
+summary(stage2)$coef
+```
+
+```
+                   Estimate Std. Error     t value     Pr(&gt;|t|)
+(Intercept)    -0.006521739  0.4176932 -0.01561371 9.875583e-01
+fitted(stage1) 10.072463768  0.7523257 13.38843571 1.569681e-29
+```
+- This generates the $10.07 LATE we arrived at manually earlier!
+- Referred to at times as the compliance adjusted ITT
+- This is why the estimation procedure is referred to as **2 stage least squares** (2SLS) regression
+- Although we have 'manually' computed this: IV estimation is not performed this way
+  + the standard errors are not correct
+  
+  
+---
+
+### Can use the `iv_robust` function in the `estimatr` package (can install `estimatr`)
+
+
+```r
+library(estimatr)
+iv1 &lt;- iv_robust(y ~ takeup | assign, data = dat)
+summary(iv1)
+```
+
+```
+
+Call:
+iv_robust(formula = y ~ takeup | assign, data = dat)
+
+Standard error type:  HC2 
+
+Coefficients:
+             Estimate Std. Error t value   Pr(&gt;|t|) CI Lower CI Upper  DF
+(Intercept) -0.006522    0.03098 -0.2105  8.335e-01 -0.06762  0.05458 198
+takeup      10.072464    0.15327 65.7177 2.015e-136  9.77022 10.37471 198
+
+Multiple R-squared:  0.9782 ,	Adjusted R-squared:  0.9781 
+F-statistic:  4319 on 1 and 198 DF,  p-value: &lt; 2.2e-16
+```
+
+---
+
+## Other options
+
+```
+mod &lt;- iv_robust(outcome ~ X + cov1 + cov2 ... | Z + cov1 + cov2, data = xxx)
+```
+
+- Z is the instrument
+- X is the takeup here
+- Can include covariates: include on both sides of the formula
+- Can get HCSE and/or cluster robust SE 
+
+
+---
+
+### We have two-sided noncompliance, what if we block the always takers (cannot take treatment, get nothing)
+
+
+```r
+xtabs(~assign + takeup, data = dat)
+```
+
+```
+      takeup
+assign  0  1
+     0 91  9
+     1 22 78
+```
+
+```r
+m1 &lt;- lm_robust(y ~ assign, data = dat)
+m2 &lt;- iv_robust(y ~ takeup | assign, data = dat)
+## what if we block those always takers?
+dat$takeup2 &lt;- ifelse(dat$assign == 0 &amp; dat$takeup == 1, 0, dat$takeup)
+dat$y2 &lt;- ifelse(dat$takeup2 == 0, 0, dat$y) #get nothing
+xtabs(~assign + takeup2, data = dat)
+```
+
+```
+      takeup2
+assign   0   1
+     0 100   0
+     1  22  78
+```
+
+```r
+m3 &lt;- iv_robust(y2 ~ takeup2 | assign, data = dat)
+```
+
+---
+
+## Now we have a difference between ITT, LATE, and TOT
+
+
+```r
+library(modelsummary)
+modelsummary(list( "ITT" = m1, "LATE" = m2, "TOT" = m3))
+```
+
+&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; ITT &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; LATE &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; TOT &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; (Intercept) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.900 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.007 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.000 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (0.289) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (0.031) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; assign &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 6.950 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (0.519) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; takeup &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 10.072 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (0.153) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; takeup2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 10.064 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;box-shadow: 0px 1px"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;box-shadow: 0px 1px"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;box-shadow: 0px 1px"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;box-shadow: 0px 1px"&gt; (0.132) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Num.Obs. &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 200 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 200 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 200 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; R2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.475 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.978 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.979 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; R2 Adj. &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.472 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.978 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.979 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Std.Errors &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; HC2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; HC2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; HC2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; p.value.weakinst &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; statistic.endogeneity &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; p.value.endogeneity &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; statistic.weakinst &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; p.value.overid &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; statistic.overid &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+
+### Example: Preschool attendance and letter name knowledge
+
+Based on:
+
+&gt; Huang, F. L. (2017). Does attending a state-funded preschool program improve letter name knowledge? Early Childhood Research Quarterly, 38, 116-126. https://doi.org/10.1016/j.ecresq.2016.08.002
+
+- Although the original study used a regression discontinuity design, we will take a simulated part of that sample for our discussion (see paper for full explanation of methods)
+- Does preschool attendance improve letter name knowledge?
+  + Treatment: Children who are in kindergarten who went through preschool the prior year (were treated)
+  + Control: Children who are enrolled in preschool (have not yet experienced the treatment)
+  + The DV is measured in the fall of 2011 when both groups of students are beginning PK or K
+  + The closest group of students: the youngest students in kindergarten (born in September 2006) vs the oldest PK students (born in October 2006)
+  + This is important to understand! The group who are a few days to one month apart are probably the closest in terms of observed and unobserved variables!
+
+---
+
+### Assignment variable (birthdays) are as good as random (discuss)
+
+&gt; A child may enter kindergarten if he or she turns five on or before September 30 of the year he or she enters school. A child who will be six years old on or before September 30 must attend school. https://www.fcps.edu/registration/kindergarten-registration [this is statewide]
+
+.pull-left[
+- A child born on Sept 30 (or earlier), 2006 WOULD be eligible for K
+- A child born on Oct 1, 2006 (or later) WOULD be eligible for PK but NOT K
+- Thought experiment: how different are kids born in October (who enter PK) vs kids born in September (who enter K) in 2006?
+
+]
+
+.pull-right[
+- Outcome in 2011 (fall)
+- Same task: except one group is in K vs PK
+- Treatment var: birthdate - cutoff date (9/30/2006): 'centered'
+  + 9/30/2006 - 9/30/2006 = 0
+  + 10/1/2006 - 9/30/2006 = -1
+  + 9/29/2006 - 9/30/2006 = 1
+
+]
+
+---
+
+### For our example, we will take kids born 60 days before or after the cutoff date.
+
+- Most similar to each other
+  + only difference is one went to pk already and one is just starting
+  + selection into PK is known
+
+```
+pk &lt;- read.csv("https://github.com/flh3/pubdata/raw/main/IV/iv_pk.csv")
+```
+
+
+
+
+```r
+summary(pk)
+```
+
+```
+      abcs            avar              takeup             tr             white       
+ Min.   : 3.00   Min.   :-60.0000   Min.   :0.0000   Min.   :0.0000   Min.   :0.0000  
+ 1st Qu.:10.00   1st Qu.:-29.0000   1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0000  
+ Median :13.00   Median : -1.0000   Median :0.0000   Median :0.0000   Median :0.0000  
+ Mean   :12.97   Mean   : -0.1863   Mean   :0.4658   Mean   :0.4969   Mean   :0.2795  
+ 3rd Qu.:16.00   3rd Qu.: 31.0000   3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:1.0000  
+ Max.   :24.00   Max.   : 60.0000   Max.   :1.0000   Max.   :1.0000   Max.   :1.0000  
+      dis              female            sch2      
+ Min.   :0.00000   Min.   :0.0000   Min.   : 2.00  
+ 1st Qu.:0.00000   1st Qu.:0.0000   1st Qu.: 7.00  
+ Median :0.00000   Median :0.0000   Median :10.00  
+ Mean   :0.04969   Mean   :0.4534   Mean   :22.22  
+ 3rd Qu.:0.00000   3rd Qu.:1.0000   3rd Qu.:20.00  
+ Max.   :1.00000   Max.   :1.0000   Max.   :70.00  
+```
+
+---
+
+### Variable descriptions
+
+- `abcs` is the outcome (number of letters identified)
+- `takeup` is whether the child is currently in K (1) or PK (0)
+- `tr` is the assignment variable based on the cutoff
+  + `tr` = 1 should be in K
+  + `tr` = 0 should be in PK
+- `white`, `dis`, `female` are demographic vars
+- `sch2` indicates the school currently in (clustering var)
+  + to simplify, we are not using the `avar` assignment variable which is used in an RDD
+
+---
+
+### Assessing compliance
+
+
+```r
+summarytools::ctable(pk$tr, pk$takeup)
+```
+
+```
+Cross-Tabulation, Row Proportions  
+tr * takeup  
+Data Frame: pk  
+
+------- -------- ------------ ------------ --------------
+          takeup            0            1          Total
+     tr                                                  
+      0            78 (96.3%)    3 ( 3.7%)    81 (100.0%)
+      1             8 (10.0%)   72 (90.0%)    80 (100.0%)
+  Total            86 (53.4%)   75 (46.6%)   161 (100.0%)
+------- -------- ------------ ------------ --------------
+```
+- 8 kids should have been in k but were in pk (redshirters)
+- 3 kids were in K but should have been in pk (greenshirters)
+  + The selection of these kids into these groups is not necessarily random- many explanations (discuss)
+  
+---
+
+## Types of analysis
+
+- Compare outcomes for those in PK vs K (naive analysis)
+
+
+```r
+m1 &lt;- lm(abcs ~ takeup, data = pk)
+summary(m1)$coef
+```
+
+```
+             Estimate Std. Error  t value     Pr(&gt;|t|)
+(Intercept) 10.918605  0.3649030 29.92194 3.313287e-67
+takeup       4.401395  0.5346379  8.23248 6.282866e-14
+```
+
+- Can do an ITT analysis
+
+```r
+m2 &lt;- lm(abcs ~ tr, data = pk)
+summary(m2)$coef
+```
+
+```
+             Estimate Std. Error   t value     Pr(&gt;|t|)
+(Intercept) 10.530864  0.3555228 29.620782 1.297744e-66
+tr           4.906636  0.5043540  9.728556 7.679092e-18
+```
+
+---
+
+## Assess compliance rates
+
+
+```r
+fstage &lt;- lm(takeup ~ tr, data = pk)
+summary(fstage)$coef
+```
+
+```
+              Estimate Std. Error   t value     Pr(&gt;|t|)
+(Intercept) 0.03703704 0.02798856  1.323292 1.876381e-01
+tr          0.86296296 0.03970531 21.734198 1.781808e-49
+```
+- 86% compliance
+- 90% took the treatment (excluding the never takers) and 3.7% were always takers
+  + So 86%
+- The LATE is then ITT / compliance = 4.906 / .862 = **5.69**
+
+---
+
+## Using `iv_robust`
+
+Can also ask for diagnostics (in this case shows we do not have a weak instrument)
+- Also shows that the OLS vs IV results differ (Wu-Hausman)
+
+
+```r
+m3 &lt;- iv_robust(abcs ~ takeup | tr, data = pk, diagnostics = TRUE)
+summary(m3)
+```
+
+```
+
+Call:
+iv_robust(formula = abcs ~ takeup | tr, data = pk, diagnostics = TRUE)
+
+Standard error type:  HC2 
+
+Coefficients:
+            Estimate Std. Error t value  Pr(&gt;|t|) CI Lower CI Upper  DF
+(Intercept)   10.320     0.3684  28.014 2.238e-63    9.593    11.05 159
+takeup         5.686     0.6298   9.028 5.531e-16    4.442     6.93 159
+
+Multiple R-squared:  0.2734 ,	Adjusted R-squared:  0.2688 
+F-statistic:  81.5 on 1 and 159 DF,  p-value: 5.531e-16
+
+Diagnostics:
+                 numdf dendf value  p.value    
+Weak instruments     1   159 469.8  &lt; 2e-16 ***
+Wu-Hausman           1   158  17.1 5.74e-05 ***
+Overidentifying      0    NA    NA       NA    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+---
+
+### Can include covariates...
+
+- Include on both sides of the equation
+
+
+```r
+m4 &lt;- iv_robust(abcs ~ takeup + white + dis + female | 
+            tr + white + dis + female, data = pk)
+summary(m4)$coef %&gt;% round(3) 
+```
+
+```
+            Estimate Std. Error t value Pr(&gt;|t|) CI Lower CI Upper  DF
+(Intercept)    9.760      0.507  19.268    0.000    8.759   10.760 156
+takeup         5.716      0.627   9.115    0.000    4.478    6.955 156
+white          1.630      0.629   2.592    0.010    0.388    2.873 156
+dis           -1.058      0.982  -1.078    0.283   -2.998    0.881 156
+female         0.316      0.536   0.590    0.556   -0.743    1.375 156
+```
+
+---
+
+### ... and account for clustering
+
+
+```r
+m4 &lt;- iv_robust(abcs ~ takeup + white + dis + female | 
+            tr + white + dis + female, data = pk, cluster = pk$sch2)
+summary(m4)
+```
+
+```
+
+Call:
+iv_robust(formula = abcs ~ takeup + white + dis + female | tr + 
+    white + dis + female, data = pk, clusters = pk$sch2)
+
+Standard error type:  CR2 
+
+Coefficients:
+            Estimate Std. Error t value  Pr(&gt;|t|) CI Lower CI Upper     DF
+(Intercept)   9.7595     0.5782 16.8793 1.410e-09   8.4962   11.023 11.706
+takeup        5.7165     0.6204  9.2148 6.723e-08   4.4042    7.029 16.442
+white         1.6303     0.6599  2.4704 2.686e-02   0.2158    3.045 14.100
+dis          -1.0585     1.0970 -0.9649 3.649e-01  -3.6209    1.504  7.452
+female        0.3162     0.5242  0.6033 5.550e-01  -0.7979    1.430 15.504
+
+Multiple R-squared:  0.3075 ,	Adjusted R-squared:  0.2897 
+F-statistic: 21.97 on 4 and 30 DF,  p-value: 1.482e-08
+```
+
+---
+
+### Can also be done using SEM (accounts for clustering as well)
+
+
+```r
+library(lavaan)
+mod &lt;- '
+abcs ~ takeup + white + dis + female
+takeup ~ tr + white + dis + female
+abcs ~~ takeup ## need to correlate the residuals!
+'
+res &lt;- sem(data = pk, model = mod, cluster = 'sch2')
+```
+```
+summary(res)
+```
+
+```
+Regressions:
+                   Estimate  Std.Err  z-value  P(&gt;|z|)
+  abcs ~                                              
+    takeup            5.716    0.602    9.492    0.000
+    white             1.630    0.644    2.530    0.011
+    dis              -1.058    1.033   -1.024    0.306
+    female            0.316    0.516    0.613    0.540
+
+Intercepts:
+                   Estimate  Std.Err  z-value  P(&gt;|z|)
+   .abcs              9.760    0.567   17.225    0.000
+```
+
+---
+
+
+## Summary
+
+- IVs can be used to recover the treatment effects for compliers (better than ITT alone)
+  + ITT is the causal effect of assignment
+  + LATE is the causal effect for the compliers
+  + TOT is the causal effect when there are no always-takers
+- Straightforward to understand once the compliance types are understood
+- IVs can be used for more than just experiments with imperfect compliance (we did not touch on those)
+  + Finding good, credible instruments is really hard
+  + Requires more explanation why the IV is as good as random
+- Has assumptions that should be understood
+
+???
+
+### Other examples
+
+
+```r
+# x &lt;- rio::import('https://github.com/flh3/pubdata/blob/main/IV/coddled.sav?raw=true') 
+# iv1 &lt;- ivreg(fail_z ~ d_coddled | z_coddled, data = x)
+# summary(iv1)
+# robust.se(iv1)
+
+# 
+# pk &lt;- mutate(pk, style = case_when(
+#              tr == 1 &amp; takeup == 1 ~ 'comp_k',
+#              tr == 0 &amp; takeup == 0 ~ 'comp_pk',
+#              tr == 1 &amp; takeup == 0 ~ 'never',
+#              tr == 0 &amp; takeup == 1 ~ 'always'
+#              
+#              
+#              ))
+# 
+# table(pk$style)
+# 
+# aggregate(abcs ~ style, pk, mean)
+```
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
