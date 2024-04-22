@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Power Analysis for Cluster Randomized Trials</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Francis L. Huang" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/rutgers-fonts.css" rel="stylesheet" />
+    <link rel="stylesheet" href="footer-header.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Power Analysis for Cluster Randomized Trials
+### Francis L. Huang
+### 2020.04.18 (updated: 2022-04-18)
+
+---
+
+
+
+
+layout: true
+
+&lt;div class="my-header"&gt;&lt;span&gt;Power Analysis&lt;/span&gt;
+&lt;/div&gt;
+&lt;div class="my-footer"&gt;&lt;span&gt;Francis Huang / huangf@missouri.edu    
+&lt;/span&gt;&lt;/div&gt;
+
+---
+
+## Why conduct a power analysis?
+
+---
+
+## Three approaches to power analyses
+
+- Formula based: user inputs design parameters
+- Simulation based: synthetic data is simulated and analyzed repeatedly
+- Summary-statistics based (not so common) (Murayama et al., 2020)
+
+---
+
+## We will be using PowerUp!
+
+- Spreadsheet version: download from [here](https://www.causalevaluation.org/)
+- PowerUpR
+- [PowerUp Shiny](https://powerupr.shinyapps.io/index/)
+
+---
+
+
+class: center, middle
+
+## Elements needed for a (single level) power analysis
+
+---
+
+## Elements needed
+
+- The significance level (alpha, typically .05)
+- Power level
+      - Type 2 error rate is denoted by `\(\beta\)` and is commonly assumed to be .20 (4 `\(\times \alpha\)`)
+      - Power is `\(1 - \beta\)` or .80
+      - Out of 100 experiments, expect 80% to have statistically significiant results
+- Effect size (assumed)
+      - Based on literature
+      - Cohen's guidelines (.20, .50, .80) vs. context dependent
+      - Need to do a literature review!! Meta analytic studies are good
+      - Answer: What is a meaningful effect?
+      - A tempting strategy is based on using results from a underpowered trial (do not do this: discuss)
+- The sample size
+
+---
+
+## If you have three of the four elements, you can determine the fourth
+
+- Alpha: generally given
+- Power: also generally given
+- Effect size: need to research
+- Sample size: often what you need
+
+At times, your sample size is constrained (you only have access to so many groups) and what you can also do is the minimum detectable effect size (MDES) given your constraints. 
+
+---
+
+## Revisiting what power means...
+
+- Simulate data (one experiment)
+
+
+```r
+set.seed(123)
+N &lt;- 100
+trt &lt;- rep(c(0, 1), each = N / 2) #50 each
+y1 &lt;- rnorm(N / 2, 0, 1)
+y2 &lt;- rnorm(N / 2, .2, 1) #.2 higher, that is the delta
+y &lt;- c(y1, y2)
+t.test(y ~ trt)
+```
+
+```
+
+	Welch Two Sample t-test
+
+data:  y by trt
+t = -1.7036, df = 97.951, p-value = 0.09162
+alternative hypothesis: true difference in means between group 0 and group 1 is not equal to 0
+95 percent confidence interval:
+ -0.67544851  0.05143907
+sample estimates:
+mean in group 0 mean in group 1 
+     0.03440355      0.34640827 
+```
+
+---
+
+## What about if we run this a thousand times?
+
+```
+set.seed(123)
+pv &lt;- numeric() #container
+for (i in 1:1000){
+   y1 &lt;- rnorm(N / 2, 0, 1)
+   y2 &lt;- rnorm(N / 2, .2, 1) #.2 higher
+   y &lt;- c(y1, y2)
+   res &lt;- t.test(y ~ trt)
+   pv[i] &lt;- res$p.value
+}
+
+```
+How many should we expect to be statistically significant? 
+
+--
+
+```
+mean(pv &lt; .05) #how many were &lt; .05
+
+[1] 0.173
+```
+
+
+---
+
+## Analytically, we can use a function as well:
+
+
+```r
+power.t.test(n = 50, delta = .2)
+```
+
+```
+
+     Two-sample t test power calculation 
+
+              n = 50
+          delta = 0.2
+             sd = 1
+      sig.level = 0.05
+          power = 0.1660879
+    alternative = two.sided
+
+NOTE: n is number in *each* group
+```
+
+The way the function works is that we specify three of the four elements
+- We don't need alpha since that defaults to .05
+- NOTE: the n is in each group.
+- So it will determine power-- which is 17%-- which is what we showed with our simulation
+
+---
+
+## Using the PowerUpR! spreadsheet
+
+- Use the individual random assignment option
+- Demo
+
+---
+
+## The t-test is very limited...
+
+- We know that this is just a regression
+- A regression can include covariates which greatly improves power (if it is related to the outcome)
+      - If the covariate reduces error, power improves
+      - Often pretests are good-- highly related with post tests
+      
+---
+
+class: center, middle
+
+## Elements needed for a (multilevel) power analysis
+
+---
+
+## With a cluster randomized trial...
+
+- Group assignment is at the cluster level, not the individual level
+- The ICC is necessary
+- Higher the ICC, the lower the power
+- Related to the Design Effect (DEFF) (Kish, 1965)
+- DEFF = `\(1 + (m - 1) \times \rho\)` where `\(m\)` is the average cluster size
+   - Can use the harmonic mean if cluster sizes are unbalanced
+   
+- With clustering the effective sample size is:
+`\(N_{eff} = \frac{N_{obs}}{DEFF}\)`
+
+
+---
+
+## How would results change if ICC were not 0?
+
+- See spreadsheet
+- Cluster random assignment option (at which level?)
+- Need to know the average number of observations within a cluster (see reading)
+- Estimate J-- the number of clusters
+
+---
+
+class: left, middle
+
+## - Can estimate the # of clusters
+## - Can estimate the minimum detectable effect size
+
+---
+
+## Using PowerUpR
+
+   - `mrss`: the minimum required sample size (at either the cluster or individual
+level).
+   - `power`: the statistical power.
+   - `mdes`: the minimum detectable effect size.
+
+
+- Need to know the specific design
+
+   - `ira`: short for individual random assignment.
+   - `cra2`: short for cluster randomized assignment in a two-level model with treatment assignment at level 2.
+   
+- Read the help file for options: necessary
+   
+---
+
+## Using our earlier example...
+
+
+```r
+library(PowerUpR)
+mrss.ira(es = .20, power = .8)
+```
+
+```
+n = 787 
+```
+
+Using the earlier calculation:
+
+
+```r
+power.t.test(delta = .20, power = .80)
+```
+
+```
+
+     Two-sample t test power calculation 
+
+              n = 393.4067
+          delta = 0.2
+             sd = 1
+      sig.level = 0.05
+          power = 0.8
+    alternative = two.sided
+
+NOTE: n is number in *each* group
+```
+The same result.
+
+---
+
+## What about if you had a delta of .25, average size of 20 per cluster,a `\(\rho\)` = .10?
+
+How many groups/clusters would you need?
+- Use the spreadsheet ...
+- Use the function ...
+
+
+```r
+mrss.cra2(es = .25, power = .8, n = 20, rho = .10)
+```
+
+```
+J = 75 
+```
+
+
+---
+
+#### You can also draw a power curve with the R function
+
+
+```r
+x &lt;- mrss.cra2(es = .25, power = .8, n = 20, rho = .10)
+```
+
+```
+J = 75 
+```
+
+```r
+plot(x) ## at J = 40, power looks like around .50
+```
+
+![](12_power_files/figure-html/unnamed-chunk-6-1.png)&lt;!-- --&gt;
+
+---
+
+## Can evaluate...
+
+
+```r
+power.cra2(es = .25, J = 40, n = 20, rho = .10)
+```
+
+```
+
+Statistical power: 
+--------------------------------------- 
+ 0.525
+--------------------------------------- 
+Degrees of freedom: 38
+Standardized standard error: 0.12
+Type I error rate: 0.05
+Type II error rate: 0.475
+Two-tailed test: TRUE
+```
+
+Close to what we eyeballed (but this is the exact power)
+
+---
+
+## See rest of chapter for writeup...
+
+
+
+## Evaluate using additional 'what-ifs'
+
+- Can you explain extra variance at level 2?
+- Explain variance at level 1?
+- What if the ICC was different?
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
