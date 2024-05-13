@@ -1,0 +1,72 @@
+div.my-header {
+    background-color: #F77A00;
+    background: -webkit-gradient(linear, left top, right top, color-stop(30%,orange), color-stop(100%,#000000));
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    height: 30px;
+    width: 100%;
+    text-align: left;
+}
+
+div.my-footer {
+    background-color: #272822;
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    height: 20px;
+    width: 100%;
+	
+}
+div.my-footer span {
+    font-size: 10pt;
+    color: #F7F8FA;
+    position: absolute;
+    left: 15px;
+    bottom: 2px;
+}
+
+div.my-header span {
+    font-size: 10pt;
+    color: #FFFFFF;
+    position: absolute;
+    right: 15px;
+    top: 2px;
+}
+
+.remark-slide-number {
+  font-size: 10pt;
+  margin-bottom: -10px;
+  margin-right: 10px;
+  color: #FFFFFF; /* white */
+  opacity: 1; /* default: 0.5 */
+}
+
+
+.left-code {
+  color: #777;
+  width: 38%;
+  height: 92%;
+  float: left;
+}
+.right-plot {
+  width: 60%;
+  float: right;
+  padding-left: 1%;
+}
+
+.red{ color: red; }
+.green{ color: green; }
+.blue{ color: blue; }
+.f60 {
+  font-size: 60%;
+}
+.f80 {
+  font-size: 80%;
+}
+.f90{
+  font-size: 90%;
+}
+.f120{
+  font-size: 120%;
+}
