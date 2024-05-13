@@ -1,0 +1,1534 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Analyzing ILSAs using R</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Francis L. Huang, PhD" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/rutgers-fonts.css" rel="stylesheet" />
+    <link href="libs/tachyons/tachyons.min.css" rel="stylesheet" />
+    <script src="libs/kePrint/kePrint.js"></script>
+    <link href="libs/lightable/lightable.css" rel="stylesheet" />
+    <link rel="stylesheet" href="footer-header.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+layout: true
+
+&lt;div class="my-header"&gt;&lt;span&gt;Analyzing ILSAs using R&lt;/span&gt;
+&lt;/div&gt;
+&lt;div class="my-footer"&gt;&lt;span&gt;Francis Huang / huangf@missouri.edu    
+&lt;/span&gt;&lt;/div&gt; 
+
+---
+
+
+
+
+
+
+
+
+class: center, middle
+&lt;!-- background-color: white --&gt;
+
+###Analyzing International Large-scale Assessments using R
+#### (w/applied examples)
+####Francis L. Huang, PhD
+
+#### 2024-05-06 (updated: 2024-05-13)
+
+<svg aria-hidden="true" role="img" viewBox="0 0 512 512" style="height:1em;width:1em;vertical-align:-0.125em;margin-left:auto;margin-right:auto;font-size:inherit;fill:currentColor;overflow:visible;position:relative;"><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg> [@flhuang](http://twitter.com/flhuang) &lt;BR&gt; <svg aria-hidden="true" role="img" viewBox="0 0 640 512" style="height:1em;width:1.25em;vertical-align:-0.125em;margin-left:auto;margin-right:auto;font-size:inherit;fill:currentColor;overflow:visible;position:relative;"><path d="M579.8 267.7c56.5-56.5 56.5-148 0-204.5c-50-50-128.8-56.5-186.3-15.4l-1.6 1.1c-14.4 10.3-17.7 30.3-7.4 44.6s30.3 17.7 44.6 7.4l1.6-1.1c32.1-22.9 76-19.3 103.8 8.6c31.5 31.5 31.5 82.5 0 114L422.3 334.8c-31.5 31.5-82.5 31.5-114 0c-27.9-27.9-31.5-71.8-8.6-103.8l1.1-1.6c10.3-14.4 6.9-34.4-7.4-44.6s-34.4-6.9-44.6 7.4l-1.1 1.6C206.5 251.2 213 330 263 380c56.5 56.5 148 56.5 204.5 0L579.8 267.7zM60.2 244.3c-56.5 56.5-56.5 148 0 204.5c50 50 128.8 56.5 186.3 15.4l1.6-1.1c14.4-10.3 17.7-30.3 7.4-44.6s-30.3-17.7-44.6-7.4l-1.6 1.1c-32.1 22.9-76 19.3-103.8-8.6C74 372 74 321 105.5 289.5L217.7 177.2c31.5-31.5 82.5-31.5 114 0c27.9 27.9 31.5 71.8 8.6 103.9l-1.1 1.6c-10.3 14.4-6.9 34.4 7.4 44.6s34.4 6.9 44.6-7.4l1.1-1.6C433.5 260.8 427 182 377 132c-56.5-56.5-148-56.5-204.5 0L60.2 244.3z"/></svg> https://francish.net  &lt;BR&gt; <svg aria-hidden="true" role="img" viewBox="0 0 512 512" style="height:1em;width:1em;vertical-align:-0.125em;margin-left:auto;margin-right:auto;font-size:inherit;fill:currentColor;overflow:visible;position:relative;"><path d="M64 112c-8.8 0-16 7.2-16 16v22.1L220.5 291.7c20.7 17 50.4 17 71.1 0L464 150.1V128c0-8.8-7.2-16-16-16H64zM48 212.2V384c0 8.8 7.2 16 16 16H448c8.8 0 16-7.2 16-16V212.2L322 328.8c-38.4 31.5-93.7 31.5-132 0L48 212.2zM0 128C0 92.7 28.7 64 64 64H448c35.3 0 64 28.7 64 64V384c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128z"/></svg> [huangf@missouri.edu](mailto:huangf@missouri.edu)
+
+---
+
+## NOTE:
+
+There are several excellent R packages that have been developed for analyzing ILSAs:
+
+- https://daniel-caro.com/r-intsvy
+- https://ralsa.ineri.org/
+- https://www.air.org/project/nces-data-r-project-edsurvey 
+
+Focus today is on continuing to expand the concepts explained earlier and applying these concepts using more familiar R workflows (i.e., you are already familiar with R, getting data, running regressions)
+
+
+
+---
+
+class: top, left
+background-image: url(img/definition.png)
+background-size: 100%
+background-position: 50% 40%
+
+# Agenda
+
+.bg-washed-yellow.b--gold.ba.bw2.br3.shadow-5.ph4.mt5[
+- .green[.f120[Reading in the data]]
+- Basic data management
+- Getting descriptives
+- Fitting regression models
+]
+
+---
+
+### Read in the data
+- https://oecd.org/pisa/data
+- NOTE: I downloaded the **2018** dataset in SPSS format
+
+.center[
+&lt;img src="img/pisadownload.jpg" width="50%" /&gt;
+]
+
+---
+
+### Load in packages, read in data...
+
+```
+library(sjmisc) #for weighted frequencies
+library(dplyr) #for data management
+library(survey) #for weighted data analysis
+dat &lt;- rio::import("c:/data/pisa/CY07_MSU_STU_QQQ.sav")
+names(dat) &lt;- tolower(names(dat)) #make lowercase
+dat2 &lt;- filter(dat, cnt == "HKG") #respondents from HK only
+```
+
+- Once downloaded, load in (install) the necessary packages
+- Import the data-- I use the `import` function in the `rio` package (Chan et al., 2021)-- this allows us to retain the SPSS labels in the dataset
+- Subset (filter) to Hong Kong data 
+- **NOTE** for some reason, the HK school-level data file is completely missing a lot of data. Around 39/40 schools (out of 152) are missing almost *all* data.
+
+
+
+NOTE: I the original dataset take a while to download (since it is huge):
+
+I have placed a copy of the HK dataset that can be used in:
+
+```
+dat2 &lt;- rio::import("https://github.com/flh3/pubdata/raw/main/mixPV/hkg.sav")
+```
+.footnote[
+Chung-hong Chan, Geoffrey CH Chan, Thomas J. Leeper, and Jason Becker (2021). rio: A Swiss-army knife for data file I/O. R package version 0.5.29.
+]
+
+???
+
+sch &lt;- rio::import("C:/Data/pisa/CY07_MSU_SCH_QQQ.sav")
+names(sch) &lt;- tolower(names(sch)) #make lowercase
+sch2 &lt;- filter(sch, cnt == "HKG") #
+
+sch &lt;- rio::import("C:/Data/pisa/CY07_MSU_SCH_QQQ.sav")
+names(sch) &lt;- tolower(names(sch))
+sch2 &lt;- filter(sch, cnt == "HKG") #
+
+---
+
+# Agenda
+
+.bg-washed-yellow.b--gold.ba.bw2.br3.shadow-5.ph4.mt5[
+- Reading in the data
+- .green[.f120[Basic data management]]
+- Getting descriptives
+- Fitting regression models
+]
+
+---
+
+### Find the variables of interest (read the codebook, view the dataset)- select a subset from the entire dataset
+
+
+```r
+sjmisc::find_var(dat2, "Gender")
+```
+
+```
+  col.nr  var.name                     var.label
+1     18 st004d01t Student (Standardized) Gender
+```
+
+```r
+dat3 &lt;- dplyr::select(dat2, pv1math:pv10math, pv1read:pv10read, 
+ gender = st004d01t, escs, cntschid, 
+ w_fstuwt, pqschool, st038q03na, immig,
+ health = wb150q01ha, stratum)
+names(dat3)
+```
+
+```
+ [1] "pv1math"    "pv2math"    "pv3math"    "pv4math"    "pv5math"   
+ [6] "pv6math"    "pv7math"    "pv8math"    "pv9math"    "pv10math"  
+[11] "pv1read"    "pv2read"    "pv3read"    "pv4read"    "pv5read"   
+[16] "pv6read"    "pv7read"    "pv8read"    "pv9read"    "pv10read"  
+[21] "gender"     "escs"       "cntschid"   "w_fstuwt"   "pqschool"  
+[26] "st038q03na" "immig"      "health"     "stratum"   
+```
+
+NOTE: can rename the variable names into something easier to remember! See format above: `newname` = `oldname`.
+
+---
+
+## NOTE on weights:
+
+- The final total student weight is `w_fstuwt`
+  - Sum of weights = population size (i.e., 51,101 15 year olds)
+  
+
+```r
+sum(dat2$w_fstuwt) #total number of 15-year olds
+```
+
+```
+[1] 51100.97
+```
+- Datasets often have what are referred to as replicate weights (in this case, there are 80 replicate weights: `w_fsturwt1` to `w_fsturwt80`)-- this represents another way to analyze the data-- we will not be using those
+- There is a lot of documentation that explains this: https://www.oecd.org/pisa/pisaproducts/pisadataanalysismanualspssandsassecondedition.htm 
+- Datasets also contain a weight variable referred to as a Senate Weights (`senwt`)-- the sum of the weights in PISA adds up to 5,000 (regardless of educational territory)
+
+
+```r
+sum(dat2$senwt)
+```
+
+```
+[1] 5000
+```
+
+---
+
+#### Need to recode and understand variables more...
+
+
+```r
+sjmisc::frq(dat3, gender)
+```
+
+```
+Student (Standardized) Gender (gender) &lt;numeric&gt; 
+# total N=6037 valid N=6037 mean=1.51 sd=0.50
+
+Value |          Label |    N | Raw % | Valid % | Cum. %
+--------------------------------------------------------
+    1 |         Female | 2955 | 48.95 |   48.95 |  48.95
+    2 |           Male | 3082 | 51.05 |   51.05 | 100.00
+    5 |     Valid Skip |    0 |  0.00 |    0.00 | 100.00
+    7 | Not Applicable |    0 |  0.00 |    0.00 | 100.00
+    8 |        Invalid |    0 |  0.00 |    0.00 | 100.00
+    9 |    No Response |    0 |  0.00 |    0.00 | 100.00
+ &lt;NA&gt; |           &lt;NA&gt; |    0 |  0.00 |    &lt;NA&gt; |   &lt;NA&gt;
+```
+
+```r
+dat3$female &lt;- ifelse(dat3$gender == 1, 1, 0)
+table(dat3$female)
+```
+
+```
+
+   0    1 
+3082 2955 
+```
+NOTE: gender is a `numeric` variable. Need to convert. When entered in a regression, text/factors will automatically be dummy coded in R. BUT, can convert to numeric to make things easier (e.g., can run correlations)
+---
+
+### ESCS is a continuous measure of socioeconomic status
+
+
+```r
+str(dat3$escs) 
+```
+
+```
+ num [1:6037] -1.907 -1.977 -2.561 -0.387 -1.231 ...
+ - attr(*, "label")= chr "Index of economic, social and cultural status"
+ - attr(*, "format.spss")= chr "F8.2"
+ - attr(*, "labels")= Named num [1:4] 95 97 98 99
+  ..- attr(*, "names")= chr [1:4] "Valid Skip" "Not Applicable" "Invalid" "No Response"
+```
+
+```r
+hist(dat3$escs)
+```
+
+![](ILSA_files/figure-html/unnamed-chunk-7-1.png)&lt;!-- --&gt;
+
+
+???
+
+#### The `st038` variables are measures of bullying (several are available, showing only one)
+
+```
+frq(dat3, st038q03na)
+```
+
+---
+
+### A report compares immigrant vs non-immigrant performance in HK
+
+Inspect the variable: NOTE the way we are recoding
+
+
+```r
+frq(dat3, immig)
+```
+
+```
+Index Immigration status (immig) &lt;numeric&gt; 
+# total N=6037 valid N=5814 mean=1.49 sd=0.70
+
+Value |             Label |    N | Raw % | Valid % | Cum. %
+-----------------------------------------------------------
+    1 |            Native | 3631 | 60.15 |   62.45 |  62.45
+    2 | Second-Generation | 1500 | 24.85 |   25.80 |  88.25
+    3 |  First-Generation |  683 | 11.31 |   11.75 | 100.00
+    5 |        Valid Skip |    0 |  0.00 |    0.00 | 100.00
+    7 |    Not Applicable |    0 |  0.00 |    0.00 | 100.00
+    8 |           Invalid |    0 |  0.00 |    0.00 | 100.00
+    9 |       No Response |    0 |  0.00 |    0.00 | 100.00
+ &lt;NA&gt; |              &lt;NA&gt; |  223 |  3.69 |    &lt;NA&gt; |   &lt;NA&gt;
+```
+
+```r
+#recode non-immigrant vs immigrant / dummy code
+dat3$immig2 &lt;- ifelse(dat3$immig &gt; 1, 1, 0)
+```
+
+---
+
+### A report compares immigrant vs non-immigrant performance in HK (cont.)
+
+.pull-left[
+The following graph shows the difference between immigrant vs nonimmigrant reading outcomes (after controlling for student and school escs)
+]
+
+.pull-right[
+.center[
+&lt;img src="img/trend3.jpg" width="50%" /&gt;
+]
+]
+
+.footnote[Source: https://www.oecd.org/pisa/publications/PISA2018_CN_HKG.pdf]
+
+---
+
+### NOTE that even though variables are **labelled**, they are still numeric
+
+
+```r
+frq(dat3, health)
+```
+
+```
+How is your health? (health) &lt;numeric&gt; 
+# total N=6037 valid N=5274 mean=2.01 sd=0.80
+
+Value |          Label |    N | Raw % | Valid % | Cum. %
+--------------------------------------------------------
+    1 |      Excellent | 1438 | 23.82 |   27.27 |  27.27
+    2 |           Good | 2530 | 41.91 |   47.97 |  75.24
+    3 |           Fair | 1096 | 18.15 |   20.78 |  96.02
+    4 |           Poor |  210 |  3.48 |    3.98 | 100.00
+    5 |     Valid Skip |    0 |  0.00 |    0.00 | 100.00
+    7 | Not Applicable |    0 |  0.00 |    0.00 | 100.00
+    8 |        Invalid |    0 |  0.00 |    0.00 | 100.00
+    9 |    No Response |    0 |  0.00 |    0.00 | 100.00
+ &lt;NA&gt; |           &lt;NA&gt; |  763 | 12.64 |    &lt;NA&gt; |   &lt;NA&gt;
+```
+
+---
+
+### May need to convert certain variables to factors (works with labelled SPSS data)
+
+
+```r
+dat3$health &lt;- rio::factorize(dat3$health)
+frq(dat3, health)
+```
+
+```
+How is your health? (health) &lt;categorical&gt; 
+# total N=6037 valid N=5274 mean=2.01 sd=0.80
+
+Value          |    N | Raw % | Valid % | Cum. %
+------------------------------------------------
+Excellent      | 1438 | 23.82 |   27.27 |  27.27
+Good           | 2530 | 41.91 |   47.97 |  75.24
+Fair           | 1096 | 18.15 |   20.78 |  96.02
+Poor           |  210 |  3.48 |    3.98 | 100.00
+Valid Skip     |    0 |  0.00 |    0.00 | 100.00
+Not Applicable |    0 |  0.00 |    0.00 | 100.00
+Invalid        |    0 |  0.00 |    0.00 | 100.00
+No Response    |    0 |  0.00 |    0.00 | 100.00
+&lt;NA&gt;           |  763 | 12.64 |    &lt;NA&gt; |   &lt;NA&gt;
+```
+NOTE: the variable type is now `categorical` (vs `numeric`).
+
+---
+
+### May need to `relevel` factor variables to select a different reference group:
+
+`Poor` is now the reference group.
+
+
+```r
+dat3$health &lt;- relevel(dat3$health, ref = 'Poor') %&gt;% 
+  droplevels() #can use droplevels to remove unused levels
+table(dat3$health)
+```
+
+```
+
+     Poor Excellent      Good      Fair 
+      210      1438      2530      1096 
+```
+
+
+---
+
+### If you want weighted descriptives, can use the weights in *certain* functions
+
+.pull-left[
+
+```r
+# unweighted
+frq(dat3, health)
+```
+
+```
+health &lt;categorical&gt; 
+# total N=6037 valid N=5274 mean=2.86 sd=0.79
+
+Value     |    N | Raw % | Valid % | Cum. %
+-------------------------------------------
+Poor      |  210 |  3.48 |    3.98 |   3.98
+Excellent | 1438 | 23.82 |   27.27 |  31.25
+Good      | 2530 | 41.91 |   47.97 |  79.22
+Fair      | 1096 | 18.15 |   20.78 | 100.00
+&lt;NA&gt;      |  763 | 12.64 |    &lt;NA&gt; |   &lt;NA&gt;
+```
+]
+
+.pull-right[
+
+```r
+# weighted
+frq(dat3, health, weights = w_fstuwt)
+```
+
+```
+health &lt;categorical&gt; 
+# total N=44537 valid N=44537 mean=2.85 sd=NA
+
+Value     |     N | Raw % | Valid % | Cum. %
+--------------------------------------------
+Poor      |  1710 |  3.84 |    3.84 |   3.84
+Excellent | 12364 | 27.76 |   27.76 |  31.60
+Good      | 21256 | 47.73 |   47.73 |  79.33
+Fair      |  9207 | 20.67 |   20.67 | 100.00
+&lt;NA&gt;      |     0 |  0.00 |    &lt;NA&gt; |   &lt;NA&gt;
+```
+]
+
+- At times might not make a big difference
+
+---
+
+### For continuous variables...
+
+
+```r
+mean(dat3$escs, na.rm = TRUE)
+```
+
+```
+[1] -0.5238875
+```
+
+```r
+weighted.mean(dat3$escs, dat3$w_fstuwt, na.rm = TRUE)
+```
+
+```
+[1] -0.5092104
+```
+
+---
+
+# Agenda
+
+.bg-washed-yellow.b--gold.ba.bw2.br3.shadow-5.ph4.mt5[
+- Reading in the data
+- Basic data management
+- .green[.f120[Getting descriptives]]
+- Fitting regression models
+]
+
+---
+
+#### For creating a complete set of weighted descriptives, the `tableone` and `survey` packages are essential
+
+How does `survey` (Lumley, 2010, 2020) work? Need to specify a design first-- this incorporates the design features of the survey.
+
+
+```r
+library(survey)
+des &lt;- svydesign(ids = ~cntschid, weights = ~w_fstuwt, data = dat3,
+                 stratum = ~strata) 
+library(tableone)
+t1 &lt;- svyCreateTableOne(vars = c('female', 'st038q03na',
+    'health', 'escs', 'immig2'), data = des)
+print(t1)
+```
+
+```
+                        
+                         Overall         
+  n                      51100.97        
+  female (mean (SD))         0.49 (0.50) 
+  st038q03na (mean (SD))     1.33 (0.72) 
+  health (%)                             
+     Poor                  1709.6 ( 3.8) 
+     Excellent            12363.6 (27.8) 
+     Good                 21256.3 (47.7) 
+     Fair                  9207.4 (20.7) 
+  escs (mean (SD))          -0.51 (1.04) 
+  immig2 (mean (SD))         0.38 (0.49) 
+```
+
+.footnote[Lumley, T. (2010) Complex Surveys: A Guide to Analysis Using R. John Wiley and Sons.]
+---
+
+### Can also do this as well unweighted (without the survey package)
+
+
+```r
+t0 &lt;- CreateTableOne(vars = c('female', 'st038q03na',
+    'health', 'escs', 'immig2'), data = dat3)
+print(t0)
+```
+
+```
+                        
+                         Overall      
+  n                       6037        
+  female (mean (SD))      0.49 (0.50) 
+  st038q03na (mean (SD))  1.33 (0.71) 
+  health (%)                          
+     Poor                  210 ( 4.0) 
+     Excellent            1438 (27.3) 
+     Good                 2530 (48.0) 
+     Fair                 1096 (20.8) 
+  escs (mean (SD))       -0.52 (1.02) 
+  immig2 (mean (SD))      0.38 (0.48) 
+```
+
+---
+
+### If you want to see what is missing...
+
+
+```r
+summary(t0)
+```
+
+```
+
+     ### Summary of continuous variables ###
+
+strata: Overall
+              n miss p.miss mean  sd median p25 p75 min max  skew kurt
+female     6037    0      0  0.5 0.5    0.0   0 1.0   0   1  0.04 -2.0
+st038q03na 6037  443      7  1.3 0.7    1.0   1 1.0   1   4  2.35  4.9
+escs       6037  198      3 -0.5 1.0   -0.6  -1 0.2  -7   3 -0.10  0.3
+immig2     6037  223      4  0.4 0.5    0.0   0 1.0   0   1  0.51 -1.7
+
+=======================================================================================
+
+     ### Summary of categorical variables ### 
+
+strata: Overall
+    var    n miss p.miss     level freq percent cum.percent
+ health 6037  763   12.6      Poor  210     4.0         4.0
+                         Excellent 1438    27.3        31.2
+                              Good 2530    48.0        79.2
+                              Fair 1096    20.8       100.0
+                                                           
+```
+
+---
+
+### Can also do this with correlation tables...
+
+.pull-left[
+Unweighted
+
+```r
+select(dat3, female, escs, 
+       st038q03na) %&gt;%
+  cor(., use = 'complete.obs') %&gt;%
+  round(2)
+```
+
+```
+           female  escs st038q03na
+female       1.00  0.10      -0.15
+escs         0.10  1.00      -0.03
+st038q03na  -0.15 -0.03       1.00
+```
+]
+
+.pull-right[
+Weighted
+
+```r
+library(jtools)
+svycor(~female + escs +
+    st038q03na, des,
+       na.rm = TRUE)
+```
+
+```
+           female  escs st038q03na
+female       1.00  0.10      -0.15
+escs         0.10  1.00      -0.03
+st038q03na  -0.15 -0.03       1.00
+```
+NOTE: This requires the `jtools` (Long, 2022) package.
+]
+
+In this case, not much of a difference-- but you will not know until you create those tables. That may not always be the case!
+
+.footnote[
+Long, J. (2022). jtools: Analysis and Presentation of Social Scientific Data. R package version 2.2.0.
+]
+
+---
+
+
+# Agenda
+
+.bg-washed-yellow.b--gold.ba.bw2.br3.shadow-5.ph4.mt5[
+- Reading in the data
+- Basic data management
+- Getting descriptives
+- .green[.f120[Fitting regression models]]
+]
+
+---
+
+## Different approaches for running regression models
+
+- Can use single-level models (which can include higher-level predictors) and use cluster robust standard errors (to account for clustering)
+- Fit multilevel models
+- The regressions must be done for each plausible value and the results combined properly (see figure below; start with imputed data)
+- Should use weights
+.center[
+&lt;img src="https://stefvanbuuren.name/fimd/fig/ch01-miflow-1.png" width="65%" /&gt;
+]
+
+.footnote[
+Source: https://stefvanbuuren.name/fimd/workflow.html
+]
+---
+
+
+```r
+library(mitools) 
+library(mice)
+tmp1 &lt;- mitools::withPV(list(maths ~ pv1math + pv2math +
+ pv3math + pv4math + pv5math + pv6math + pv7math + 
+ pv8math + pv9math + pv10math),
+ data = des,
+*action = quote(survey::svyglm(maths ~ 1, design = des)),
+ rewrite = TRUE)
+summary(pool(tmp1)) #from mice package
+```
+
+```
+         term estimate std.error statistic       df p.value
+1 (Intercept) 551.1543  4.759562  115.7994 13708.91       0
+```
+.center[
+&lt;img src="img/trend1.jpg" width="70%" /&gt;
+]
+
+.footnote[Source: https://www.oecd.org/pisa/publications/PISA2018_CN_HKG.pdf]
+
+---
+
+#### What about if we do this for reading? (2018)
+
+
+```r
+read1 &lt;- mitools::withPV(list(read ~ pv1read + pv2read +
+ pv3read + pv4read + pv5read + pv6read + pv7read + 
+ pv8read + pv9read + pv10read),
+ data = des,
+*action = quote(survey::svyglm(read ~ 1, design = des)),
+ rewrite = TRUE)
+summary(pool(read1)) #from mice package
+```
+
+```
+         term estimate std.error statistic     df p.value
+1 (Intercept) 524.2831   5.16405  101.5256 298091       0
+```
+.center[
+&lt;img src="img/trend1.jpg" width="70%" /&gt;
+]
+
+.footnote[Source: https://www.oecd.org/pisa/publications/PISA2018_CN_HKG.pdf]
+
+---
+
+
+
+```r
+tmp2 &lt;- mitools::withPV(list(maths ~ pv1math + pv2math +
+ pv3math + pv4math + pv5math + pv6math + pv7math + 
+ pv8math + pv9math + pv10math), data = des,
+*action = quote(survey::svyglm(maths ~ female, design = des)),
+ rewrite = TRUE)
+summary(pool(tmp2))
+```
+
+```
+         term   estimate std.error  statistic       df   p.value
+1 (Intercept) 548.459882  5.388303 101.787131 140.2126 0.0000000
+2      female   5.537028  5.009030   1.105409 122.7376 0.2711444
+```
+
+.center[
+&lt;img src="img/trend2.jpg" width="50%" /&gt;
+]
+
+.footnote[Source: https://www.oecd.org/pisa/publications/PISA2018_CN_HKG.pdf] 
+
+---
+
+#### A few slides ago, showed the reading performance gap of immigrant vs nonimmigrant students after controlling to student and school SES (9 point difference)
+
+- Need to first create a group-level aggregate of SES at the school level:
+
+
+```r
+library(MLMusingR)
+dat3$escs_sch &lt;- group_mean(dat3$escs, dat3$cntschid)
+```
+
+- Need to update the `des` object since have added a new variable to the dataset
+- `escs_sch` is referred to as a school-level variable-- this is different from the student-level variable
+  - The same value repeats per school 
+
+---
+
+### Regression results, including immigration status and both student- and school-level escs as predictors
+
+
+```r
+des &lt;- svydesign(ids = ~cntschid, weights = ~w_fstuwt, data = dat3) 
+tmp3 &lt;- mitools::withPV(list(read ~ pv1read + pv2read +
+ pv3read + pv4read + pv5read + pv6read + pv7read + 
+ pv8read + pv9read + pv10read), data = des,
+*action = quote(survey::svyglm(read ~ immig2 + escs + escs_sch, design = des)),
+ rewrite = TRUE)
+summary(pool(tmp3))
+```
+
+```
+         term   estimate std.error  statistic       df      p.value
+1 (Intercept) 553.373765  5.408380 102.317840 144.3773 0.000000e+00
+2      immig2   8.823202  4.483261   1.968032 136.3429 5.109335e-02
+3        escs   3.525814  1.560557   2.259330 108.2792 2.586512e-02
+4    escs_sch  55.813817  7.019104   7.951701 142.8540 5.082601e-13
+```
+- From the report:
+&gt; "There is no statistically significant difference in reading performance between immigrant and nonimmigrant students in Hong Kong (China). After accounting for students' and schools' socio-economic profile the difference shrank to nine score points." (p. 6)
+---
+
+### Another way: 
+1. Create a tall dataset from the wide dataset: one outcome per row (i.e., read)
+2. Split the data per pv (into a list)
+3. Run a regression per item in a list
+4. Pool the results
+
+```r
+library(tidyr) #for reshaping
+tall &lt;- pivot_longer(dat3, pv1read:pv10read, names_to = 'pv', values_to = 'read')
+listofdata &lt;- split(tall, tall$pv)
+library(estimatr) #for lm_robust
+listofres &lt;- lapply(listofdata, function(x)
+  lm_robust(read ~ immig2 + escs + escs_sch, data = x,
+  weights = w_fstuwt, cluster = cntschid)) #can use se_type = 'stata' too
+summary(pool(listofres))
+```
+
+```
+         term   estimate std.error  statistic       df      p.value
+1 (Intercept) 553.373765  5.491749 100.764582 35.19116 0.000000e+00
+2      immig2   8.823202  4.571647   1.929983 33.92185 6.200541e-02
+3        escs   3.525814  1.564604   2.253487 30.05278 3.168059e-02
+4    escs_sch  55.813817  7.187124   7.765807 34.92349 4.097163e-09
+```
+---
+
+#### Fitting the models per PV shows differences... (showing pv 10, 1 to 5)
+
+&lt;table style="NAborder-bottom: 0; width: auto !important; margin-left: auto; margin-right: auto;" class="table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; pv10read &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; pv1read &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; pv2read &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; pv3read &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; pv4read &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; pv5read &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; (Intercept) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 553.208*** &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 553.113*** &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 553.639*** &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 553.797*** &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 552.998*** &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 553.573*** &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (5.323) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (5.585) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (5.674) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (5.424) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (5.467) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (5.439) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; immig2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 9.564* &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 9.591* &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 9.209* &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7.674+ &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 9.635* &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7.760+ &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (4.493) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (4.536) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (4.408) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (4.589) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (4.510) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (4.467) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; escs &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.241* &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.096* &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.793* &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.260* &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.544* &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4.531** &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (1.493) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (1.453) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (1.487) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (1.575) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (1.424) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (1.476) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; escs_sch &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 57.171*** &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 56.167*** &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 55.768*** &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 55.505*** &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 55.776*** &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 54.072*** &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;box-shadow: 0px 1px"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;box-shadow: 0px 1px"&gt; (6.862) &lt;/td&gt;
+   &lt;td style="text-align:center;box-shadow: 0px 1px"&gt; (7.345) &lt;/td&gt;
+   &lt;td style="text-align:center;box-shadow: 0px 1px"&gt; (7.337) &lt;/td&gt;
+   &lt;td style="text-align:center;box-shadow: 0px 1px"&gt; (7.099) &lt;/td&gt;
+   &lt;td style="text-align:center;box-shadow: 0px 1px"&gt; (7.095) &lt;/td&gt;
+   &lt;td style="text-align:center;box-shadow: 0px 1px"&gt; (7.141) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; R2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.135 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.128 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.130 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.128 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.131 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.128 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;tfoot&gt;&lt;tr&gt;&lt;td style="padding: 0; " colspan="100%"&gt;
+&lt;sup&gt;&lt;/sup&gt; + p &amp;lt; 0.1, * p &amp;lt; 0.05, ** p &amp;lt; 0.01, *** p &amp;lt; 0.001&lt;/td&gt;&lt;/tr&gt;&lt;/tfoot&gt;
+&lt;/table&gt;
+
+---
+
+### Showing results by PV shows...
+
+- Conclusions can differ by PV
+  - In the analysis per PV, some were statistically significant-- depending on the PV chosen!
+
+- p-values in the pooled results &gt; .05 (i.e., .051, .062)- careful about interpreting p-values too much
+
+.footnote[Source: https://www.oecd.org/pisa/publications/PISA2018_CN_HKG.pdf]
+
+---
+
+#### Can fit a multilevel model (MLM) as well (this takes considerably longer)
+
+- NOTE: We use `WeMix` (Bailey) to fit weighted mixed effects (multilevel) models (allows us to use weights at different levels)
+- The commonly-used MLM packages (i.e., `lme4` and `nlme`) may not correctly use sampling weights
+- We need to also use the `mixPV` function (below) that is a wrapper function that works with `WeMix` to allow us to use plausible values
+
+
+```r
+source("https://raw.githubusercontent.com/flh3/pubdata/main/mixPV/mixPV.R")
+library(WeMix)
+dat3$one &lt;- 1 #just make it a constant for now
+mlm1 &lt;- mixPV(pv1read + pv2read +
+ pv3read + pv4read + pv5read + pv6read + pv7read + 
+ pv8read + pv9read + pv10read ~ 1 + (1|cntschid),
+ data = dat3, weights = c('w_fstuwt', 'one')) 
+```
+
+```
+Analyzing plausible value: pv1read 
+Analyzing plausible value: pv2read 
+Analyzing plausible value: pv3read 
+Analyzing plausible value: pv4read 
+Analyzing plausible value: pv5read 
+Analyzing plausible value: pv6read 
+Analyzing plausible value: pv7read 
+Analyzing plausible value: pv8read 
+Analyzing plausible value: pv9read 
+Analyzing plausible value: pv10read 
+```
+
+
+
+---
+
+## To use the function, need to specify:
+
+- All PVs on the left hand side
+- The random effects
+- The weights (l1, l2)
+
+```
+mlm1 &lt;- mixPV(pv1read + pv2read +
+ pv3read + pv4read + pv5read + pv6read + pv7read + 
+ pv8read + pv9read + pv10read ~ 1 + (1|cntschid),
+ data = dat3, weights = c('w_fstuwt', 'one')) 
+```
+
+- In our example, we just set the l2 weight to 1
+- This just mirrors using single-level total weights
+- BUT we can have a different level-2 weight-- in PISA 2018-2022, a usable school weight is `W_SCHGRNRABWT` (`GRADE NONRESPONSE ADJUSTED SCHOOL BASE WEIGHT`)
+
+.footnote[
+Bailey P, Webb B, Kelley C, Nguyen T, Huo H (2023). _WeMix: Weighted Mixed-Effects Models Using Multilevel Pseudo Maximum Likelihood Estimation_. R package version 4.0.0.
+
+Huang, F. L. (2024). Using plausible values when fitting multilevel models with large-scale assessment data using R. _Large-scale Assessments in Education, 12_(1), 7. https://doi.org/10.1186/s40536-024-00192-0
+
+]
+
+
+---
+
+### Why run an unconditional (null) model? What do we mean by partitioning the variance? 
+
+- A model with no predictors (a *null model*)
+- Decomposes the variance in the outcome *between* and *within* groups
+  + Indicates how much variance can be attributed between groups
+  + Results in an important statistic often used in multilevel modeling: The **Intraclass Correlation Coefficient** (or ICC or `\(\rho \rightarrow\)` 'rho')
+- Gives us baseline variance estimates
+- As basis of reference
+
+---
+
+### How much variability in reading achievement is due to schools? 
+
+- Or generically, how much variability is due to the grouping variable?
+- Run a multilevel model with no predictors, only the grouping variable
+- A one-way random effects ANOVA
+
+`$$Level 1: Y_{ij} = \beta_{0j} + r_{ij}$$`
+
+`$$Level 2: \beta_{0j} = \gamma_{00} + u_{0j}$$`
+`$$Combined: Y_{ij} = \gamma_{00} + u_{0j} + r_{ij}$$`
+
+Now we have an equation for level 1 (student level) and level 2 (school level). We assume that: 
+- `\(r_{ij}\)` ~ N(0, `\(\sigma^2\)`): errors are normally distributed with a variance of `\(\sigma^2\)` (i.e., student-level variance) for  `\(i\)` individual in `\(j\)` school 
+- `\(u_{0j}\)` ~ N(0, `\(\tau_{00}\)`): `\(\tau_{00}\)` is school-level variance of the outcome
+
+`\(r_{ij}\)` and `\(u_{0j}\)` are referred to as *random effects*
+`\(\gamma_{00}\)` is referred to as the *fixed effect*
+
+---
+
+
+#### Using the output of the unconditional model, we can compute the intraclass correlation coefficient (ICC)
+
+
+```r
+summary(mlm1)
+```
+
+```
+Results of multilevel analyses with 10 plausible values.
+Number of observations: 6037 
+
+Estimates for random effects: 
+                     estimate std.error statistic    df Pr(&gt;t)    
+cntschid.(Intercept)   3306.5     293.8      11.3 14330 &lt;2e-16 ***
+Residual               6471.5     197.1      32.8  2006 &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Estimates for fixed effects: 
+            estimate std.error statistic    df Pr(&gt;t)    
+(Intercept)   525.20      4.72    111.28 81436 &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+```r
+3307 / (3307 + 6472) #ICC
+```
+
+```
+[1] 0.3381736
+```
+
+34% of the variance in the outcome is due to the school a student attends
+
+---
+
+#### Using the output of the unconditional model, we can compute the intraclass correlation coefficient (ICC) (cont.)
+
+- Look at the random effects
+    - Between groups: `\(\tau_{00} = \sigma^2_b = 3307\)`
+    - Within group: `\(\sigma^2 = \sigma^2_w = 6472\)`
+    - Total variance is `\(3307 + 6472 = 9779\)` (similar to the variance shown previously)
+  - This is the amount of variability of the outcome attributable to the different levels
+
+
+---
+
+## Understanding ICC ...
+
+- All units within cluster are the same (let's say we are looking at heights of kids)
+- Variance is totally _between_ clusters
+&lt;P&gt;
+&lt;img src="img/bgroup.png" width="100%" /&gt;
+
+--
+
+&lt;P&gt;
+- The within cluster variance is zero (as they are all the same)
+- **The ICC then is 1**
+  `$$ICC = \frac{\sigma^2_b}{\sigma^2_b + \sigma^2_w} =
+\frac{1}{1 + 0} = 1$$`
+
+---
+
+## Understanding ICC ... (cont.)
+
+- All clusters are the same
+- Variance is totally _within_ clusters
+&lt;P&gt;
+&lt;img src="img/wgroup.png" width="100%" /&gt;
+--
+
+&lt;P&gt;
+- The between cluster variance is zero 
+- **The ICC then is 0**
+  `$$ICC = \frac{\sigma^2_b}{\sigma^2_b + \sigma^2_w} =
+\frac{0}{0 + 1} = 0$$`
+
+---
+
+## What is the issue with ICC &gt; 0?
+
+- Increased Type I error rates (esp. for higher level variable) if ignored (Barcikowski, 1981; Huang, 2016)
+- Sample size is actually smaller than reported 
+- Effective sample size is (see McCoach &amp; Adelson, 2010):
+`$$N_{EFF} = \frac{N_{total}}{1 + \rho(m - 1)} = \frac{N_{total}}{DEFF}$$`
+  + where `\(N_{total}\)` is the observed overall sample size and `\(m\)` is the number of observations in each cluster (can take the average or harmonic mean)
+  + Denominator is referred to as the design effect (DEFF); more in succeeding classes
+  
+???
+  
+  What Is an Intracluster Correlation Coefficient? Crucial Concepts for Primary Care Researchers
+Shersten Killip, MD, MPH,1 Ziyad Mahfoud, PhD,2 and Kevin Pearce, MD, MPH1
+
+(Barcikowski, 1981)
+
+---
+
+### Fitting a model using `female` as a predictor
+
+
+```r
+mlm2 &lt;- mixPV(pv1read + pv2read +
+ pv3read + pv4read + pv5read + pv6read + pv7read + 
+ pv8read + pv9read + pv10read ~ 1 + female + (1|cntschid), silent = TRUE,
+ data = dat3, weights = c('w_fstuwt', 'one'))
+summary(mlm2)
+```
+
+```
+Results of multilevel analyses with 10 plausible values.
+Number of observations: 6037 
+
+Estimates for random effects: 
+                     estimate std.error statistic    df Pr(&gt;t)    
+cntschid.(Intercept)   3164.9     285.5      11.1 15221 &lt;2e-16 ***
+Residual               6417.5     192.4      33.4  2007 &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Estimates for fixed effects: 
+            estimate std.error statistic    df Pr(&gt;t)    
+(Intercept)   517.18      5.02    103.11 27384 &lt;2e-16 ***
+female         16.58      2.68      6.19   237 &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+---
+
+### Note, in all the models we have fit, the student-level coefficients are a mix of effects
+
+- There is a portion due to the student
+- There is a portion due to the school attended
+- We can disentangle that but I did not do that to keep results consistent with the reports that have been produced
+  - One way of doing that is to group-center level-1 predictors
+  - Another way is to include the group mean as a predictor at level 2
+  - This applies to both single- and multilevel models
+- Group centering is merely subtracting the group mean from the original variable- can be done with continuous and binary variables
+- Sometimes referred to as centering within context (CWC)
+
+---
+
+### Model math achievement both ways using GLM and MLM using group-centered variables
+
+
+```r
+library(MLMusingR) #has the group_center function
+math.glm &lt;- mitools::withPV(list(maths ~ pv1math + pv2math +
+ pv3math + pv4math + pv5math + pv6math + pv7math + 
+ pv8math + pv9math + pv10math), data = des,
+ action = quote(survey::svyglm(maths ~ group_center(female, cntschid), 
+ design = des)), 
+ rewrite = TRUE)
+
+math.mlm &lt;- mixPV(pv1math + pv2math +
+ pv3math + pv4math + pv5math + pv6math + pv7math + 
+ pv8math + pv9math + pv10math ~ group_center(female, cntschid) +
+ (1|cntschid), silent = TRUE,
+ data = dat3, weights = c('w_fstuwt', 'one')) 
+```
+
+
+---
+
+### Comparison of results (uncentered, centered GLM, centered MLM)
+
+&lt;table style="NAborder-bottom: 0; width: auto !important; margin-left: auto; margin-right: auto;" class="table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Orig &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; GLM &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; MLM &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; (Intercept) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 548.460*** &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 551.125*** &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 552.491*** &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (5.388) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (4.761) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (4.504) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; female &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5.537 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (5.009) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; group_center(female, cntschid) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −10.635*** &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −11.037*** &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (2.917) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; (2.794) &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;tfoot&gt;&lt;tr&gt;&lt;td style="padding: 0; " colspan="100%"&gt;
+&lt;sup&gt;&lt;/sup&gt; + p &amp;lt; 0.1, * p &amp;lt; 0.05, ** p &amp;lt; 0.01, *** p &amp;lt; 0.001&lt;/td&gt;&lt;/tr&gt;&lt;/tfoot&gt;
+&lt;/table&gt;
+
+---
+
+### Another example: TIMSS 2015
+
+- I downloaded the 2015 version (can choose other years)
+  - https://timssandpirls.bc.edu/timss2015/international-database/
+- TIMSS data are spread out over several files: there are student, home, teacher, school data (plus others)-- for 4th and 8th graders
+- I just chose 4th grade (all the files start with an "A"; 8th graders start with a "B")
+- There are 5 PVs with TIMSS
+
+
+```r
+## ASH is home context; ACG: school context; ASG: student context
+t.stud &lt;- rio::import("C:/Data/TIMSS/2015/ASGHKGM6.sav") #achi
+t.sch &lt;- rio::import("C:/Data/TIMSS/2015/ACGHKGM6.sav") #school
+t.paren &lt;- rio::import("C:/Data/TIMSS/2015/ASHHKGM6.sav") #school
+
+t.stud2 &lt;- select(t.stud, IDSTUD, IDSCHOOL, TOTWGT, ASMMAT01:ASMMAT05)
+t.sch2 &lt;- select(t.sch, IDSCHOOL, years = ACBG20, SCHWGT)
+t.paren2 &lt;- select(t.paren, IDSTUD, preschool = ASDHAPS, pared = ASDHEDUP)
+
+comb &lt;- left_join(t.stud2, t.paren2, by = 'IDSTUD')
+comb2 &lt;- left_join(comb, t.sch2, by = 'IDSCHOOL')
+names(comb2) &lt;- tolower(names(comb2))
+```
+
+---
+
+### Using weights at both levels
+
+
+```r
+timss1 &lt;- mixPV(asmmat01 + asmmat02 + asmmat03 + asmmat04 + 
+ asmmat05 ~ 1 + (1|idschool), silent = TRUE,
+ data = comb2, weights = c('totwgt', 'schwgt')) 
+summary(timss1)
+```
+
+```
+Results of multilevel analyses with 5 plausible values.
+Number of observations: 3600 
+
+Estimates for random effects: 
+                     estimate std.error statistic   df Pr(&gt;t)    
+idschool.(Intercept)  1372.04    176.06      7.79 90.5 &lt;2e-16 ***
+Residual              2916.02    131.19     22.23 23.2 &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Estimates for fixed effects: 
+            estimate std.error statistic    df Pr(&gt;t)    
+(Intercept)   606.65      3.92    154.57 23909 &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+---
+
+#### A study (Mang et al.) has indicated that level-2 weights *only* are ok 
+
+
+```r
+comb2$one &lt;- 1
+timss2 &lt;- mixPV(asmmat01 + asmmat02 + asmmat03 + asmmat04 + 
+ asmmat05 ~ 1 + (1|idschool), silent = TRUE,
+*data = comb2, weights = c('one', 'schwgt'), cWeights = TRUE)
+summary(timss2) 
+```
+
+```
+Results of multilevel analyses with 5 plausible values.
+Number of observations: 3600 
+
+Estimates for random effects: 
+                     estimate std.error statistic  df Pr(&gt;t)    
+idschool.(Intercept)   1268.6     173.8       7.3 101 &lt;2e-16 ***
+Residual               3112.2     149.4      20.8  73 &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Estimates for fixed effects: 
+            estimate std.error statistic    df Pr(&gt;t)    
+(Intercept)   606.58      3.91    155.13 21396 &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+.footnote[Mang, J., Küchenhoff, H., Meinck, S., &amp; Prenzel, M. (2021). Sampling weights in multilevel modelling: An investigation using PISA sampling structures. Large-Scale Assessments in Education, 9(1), 6. https://doi.org/10.1186/s40536-021-00099-0
+]
+
+---
+
+### The level-2 weights may be fine because generally, the school weights are larger and have more variability than the student-levels weights
+
+- If the use of weights were 'cost-free' (i.e., you do not give up anything using weights), then the use of weights would be routine
+- Some disciplines do not generally tend to use weights (e.g., econometrics)
+- However, the use of weights does make sense as it 'respects' the study design
+- Sometimes, weights may not be *informative* in the sense that results do not change
+- However, in those cases, the variance of the coefficients become larger (inflated) unnecessarily (i.e., results in less power)
+- Some tests have been formulated to test if weights are informative (see Bollen et al., 2016 for a very good and readable overview)
+
+.footnote[
+Bollen, K. A., Biemer, P. P., Karr, A. F., Tueller, S., &amp; Berzofsky, M. E. (2016). Are survey weights needed? A review of diagnostic tests in regression analysis. Annual Review of Statistics and Its Application, 3(1), 375–392. https://doi.org/10.1146/annurev-statistics-011516-012958
+]
+
+---
+
+#### There are some basic tests and are simple to understand (in this case, the weights are informative)
+
+- There are other functions as well that are helpful (using one pv as an example)
+
+
+```r
+library(jtools) #fit model, use weights_test
+tst &lt;- lm(pv1math ~ female + escs, data = dat3) #model to test
+weights_tests(model = tst, weights = w_fstuwt, data = dat3) #run the test
+```
+
+```
+DuMouchel-Duncan test of model change with weights
+
+F(3,5833) = 47.123
+p = 0
+
+Lower p values indicate greater influence of the weights.
+
+Standard errors: OLS
+-----------------------------------------------------
+                          Est.   S.E.   t val.      p
+--------------------- -------- ------ -------- ------
+(Intercept)             616.63   6.56    94.04   0.00
+female                  -31.91   9.18    -3.48   0.00
+w_fstuwt                 -5.77   0.74    -7.84   0.00
+escs                     -2.14   4.13    -0.52   0.61
+female:w_fstuwt           3.20   1.05     3.05   0.00
+w_fstuwt:escs             2.55   0.46     5.61   0.00
+-----------------------------------------------------
+
+---
+Pfeffermann-Sverchkov test of sample weight ignorability 
+
+Residual correlation = -0.13, p = 0.00
+Squared residual correlation = 0.08, p = 0.00
+Cubed residual correlation = -0.11, p = 0.00
+
+A significant correlation may indicate biased estimates
+in the unweighted model.
+```
+
+---
+
+### One test (DuMouchel-Duncan, 1983) fits the basic model and then compares this to a model with weights interacting with the predictors...
+
+- If the model fits better with the interactions, the weights are informative and should be used
+- See prior slide-- results are the same F(3, 5833) = 47.12, p &lt; .001
+
+
+```r
+tst2 &lt;- update(tst, . ~ . * w_fstuwt)
+anova(tst, tst2)
+```
+
+```
+Analysis of Variance Table
+
+Model 1: pv1math ~ female + escs
+Model 2: pv1math ~ female + escs + w_fstuwt + female:w_fstuwt + escs:w_fstuwt
+  Res.Df      RSS Df Sum of Sq      F    Pr(&gt;F)    
+1   5836 47526832                                  
+2   5833 46402224  3   1124608 47.123 &lt; 2.2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+- The Pfeffermann-Sverchkov test uses the residuals (at the bottom of the other page, but cannot be seen on the slide)
+
+---
+
+## Summary
+
+- There are different approaches for using weighted data (GLM, MLM)
+- Different packages can handle the use the plausible values
+- Be mindful of the types of weights available
+- Tests can be performed in order to test the need for the use of weights
+
+???
+
+frq(comb2, preschool, pared)
+
+
+#### Including predictors...years as principal 
+
+
+timss3 &lt;- mixPV(asmmat01 + asmmat02 + asmmat03 + asmmat04 + 
+ asmmat05 ~ years + (1|idschool), silent = TRUE,
+ data = comb2, weights = c('totwgt', 'schwgt')) 
+summary(timss3)
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
